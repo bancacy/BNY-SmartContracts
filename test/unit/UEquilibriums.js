@@ -1,0 +1,541 @@
+const UEquilibriums = artifacts.require('UEquilibriums.sol');
+const _require = require('app-root-path').require;
+const BlockchainCaller = _require('/util/blockchain_caller');
+const chain = new BlockchainCaller(web3);
+const BigNumber = web3.BigNumber;
+const encodeCall = require('zos-lib/lib/helpers/encodeCall').default;
+
+require('chai')
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+function toUFrgDenomination (x) {
+  return new BigNumber(x).mul(10 ** DECIMALS);
+}
+const DECIMALS = 9;
+const INTIAL_SUPPLY = toUFrgDenomination(50 * 10 ** 6);
+const transferAmount = toUFrgDenomination(10);
+const unitTokenAmount = toUFrgDenomination(1);
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+let uEquilibriums, b, r, deployer, user, initialSupply;
+async function setupContracts () {
+  const accounts = await chain.getUserAccounts();
+  deployer = accounts[0];
+  user = accounts[1];
+  uEquilibriums = await UEquilibriums.new();
+  r = await uEquilibriums.sendTransaction({
+    data: encodeCall('initialize', ['address'], [deployer]),
+    from: deployer
+  });
+  initialSupply = await uEquilibriums.totalSupply.call();
+}
+
+contract('UEquilibriums', function (accounts) {
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should reject any ether sent to it', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.sendTransaction({ from: user, value: 1 }))
+    ).to.be.true;
+  });
+});
+
+contract('UEquilibriums:Initialization', function (accounts) {
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should transfer 50M uEquilibriums to the deployer', async function () {
+    (await uEquilibriums.balanceOf.call(deployer)).should.be.bignumber.eq(INTIAL_SUPPLY);
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('Transfer');
+    expect(log.args.from).to.eq(ZERO_ADDRESS);
+    expect(log.args.to).to.eq(deployer);
+    log.args.value.should.be.bignumber.eq(INTIAL_SUPPLY);
+  });
+
+  it('should set the totalSupply to 50M', async function () {
+    initialSupply.should.be.bignumber.eq(INTIAL_SUPPLY);
+  });
+
+  it('should set the owner', async function () {
+    expect(await uEquilibriums.owner.call()).to.eq(deployer);
+  });
+
+  it('should set detailed ERC20 parameters', async function () {
+    expect(await uEquilibriums.name.call()).to.eq('Bancacy');
+    expect(await uEquilibriums.symbol.call()).to.eq('BNY');
+    (await uEquilibriums.decimals.call()).should.be.bignumber.eq(DECIMALS);
+  });
+
+  it('should have 9 decimals', async function () {
+    const decimals = await uEquilibriums.decimals.call();
+    decimals.should.be.bignumber.eq(DECIMALS);
+  });
+
+  it('should have BNY symbol', async function () {
+    const symbol = await uEquilibriums.symbol.call();
+    symbol.should.be.eq('BNY');
+  });
+});
+
+contract('UEquilibriums:setMonetaryPolicy', function (accounts) {
+  const policy = accounts[1];
+
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should set reference to policy contract', async function () {
+    await uEquilibriums.setMonetaryPolicy(policy, { from: deployer });
+    expect(await uEquilibriums.monetaryPolicy.call()).to.eq(policy);
+  });
+
+  it('should emit policy updated event', async function () {
+    const r = await uEquilibriums.setMonetaryPolicy(policy, { from: deployer });
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogMonetaryPolicyUpdated');
+    expect(log.args.monetaryPolicy).to.eq(policy);
+  });
+});
+
+contract('UEquilibriums:setMonetaryPolicy:accessControl', function (accounts) {
+  const policy = accounts[1];
+
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should be callable by owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setMonetaryPolicy(policy, { from: deployer }))
+    ).to.be.false;
+  });
+});
+
+contract('UEquilibriums:setMonetaryPolicy:accessControl', function (accounts) {
+  const policy = accounts[1];
+  const user = accounts[2];
+
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should NOT be callable by non-owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setMonetaryPolicy(policy, { from: user }))
+    ).to.be.true;
+  });
+});
+
+contract('UEquilibriums:PauseRebase', function (accounts) {
+  const policy = accounts[1];
+  const A = accounts[2];
+  const B = accounts[3];
+
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+    r = await uEquilibriums.setRebasePaused(true);
+  });
+
+  it('should emit pause event', async function () {
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogRebasePaused');
+    expect(log.args.paused).to.be.true;
+  });
+
+  it('should not allow calling rebase', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.rebase(1, toUFrgDenomination(500), { from: policy }))
+    ).to.be.true;
+  });
+
+  it('should allow calling transfer', async function () {
+    await uEquilibriums.transfer(A, transferAmount, { from: deployer });
+  });
+
+  it('should allow calling approve', async function () {
+    await uEquilibriums.approve(A, transferAmount, { from: deployer });
+  });
+
+  it('should allow calling allowance', async function () {
+    await uEquilibriums.allowance.call(deployer, A);
+  });
+
+  it('should allow calling transferFrom', async function () {
+    await uEquilibriums.transferFrom(deployer, B, transferAmount, {from: A});
+  });
+
+  it('should allow calling increaseAllowance', async function () {
+    await uEquilibriums.increaseAllowance(A, transferAmount, {from: deployer});
+  });
+
+  it('should allow calling decreaseAllowance', async function () {
+    await uEquilibriums.decreaseAllowance(A, 10, {from: deployer});
+  });
+
+  it('should allow calling balanceOf', async function () {
+    await uEquilibriums.balanceOf.call(deployer);
+  });
+
+  it('should allow calling totalSupply', async function () {
+    await uEquilibriums.totalSupply.call();
+  });
+});
+
+contract('UEquilibriums:PauseRebase:accessControl', function (accounts) {
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should be callable by owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setRebasePaused(true, { from: deployer }))
+    ).to.be.false;
+  });
+
+  it('should NOT be callable by non-owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setRebasePaused(true, { from: user }))
+    ).to.be.true;
+  });
+});
+
+contract('UEquilibriums:PauseToken', function (accounts) {
+  const policy = accounts[1];
+  const A = accounts[2];
+  const B = accounts[3];
+
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+    r = await uEquilibriums.setTokenPaused(true);
+  });
+
+  it('should emit pause event', async function () {
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogTokenPaused');
+    expect(log.args.paused).to.be.true;
+  });
+
+  it('should allow calling rebase', async function () {
+    await uEquilibriums.rebase(1, toUFrgDenomination(500), { from: policy });
+  });
+
+  it('should not allow calling transfer', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.transfer(A, transferAmount, { from: deployer }))
+    ).to.be.true;
+  });
+
+  it('should not allow calling approve', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.approve(A, transferAmount, { from: deployer }))
+    ).to.be.true;
+  });
+
+  it('should allow calling allowance', async function () {
+    await uEquilibriums.allowance.call(deployer, A);
+  });
+
+  it('should not allow calling transferFrom', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.transferFrom(deployer, B, transferAmount, {from: A}))
+    ).to.be.true;
+  });
+
+  it('should not allow calling increaseAllowance', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.increaseAllowance(A, transferAmount, {from: deployer}))
+    ).to.be.true;
+  });
+
+  it('should not allow calling decreaseAllowance', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.decreaseAllowance(A, transferAmount, {from: deployer}))
+    ).to.be.true;
+  });
+
+  it('should allow calling balanceOf', async function () {
+    await uEquilibriums.balanceOf.call(deployer);
+  });
+
+  it('should allow calling totalSupply', async function () {
+    await uEquilibriums.totalSupply.call();
+  });
+});
+
+contract('UEquilibriums:PauseToken:accessControl', function (accounts) {
+  before('setup UEquilibriums contract', setupContracts);
+
+  it('should be callable by owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setTokenPaused(true, { from: deployer }))
+    ).to.be.false;
+  });
+
+  it('should NOT be callable by non-owner', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.setTokenPaused(true, { from: user }))
+    ).to.be.true;
+  });
+});
+
+contract('UEquilibriums:Rebase:accessControl', function (accounts) {
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(user, {from: deployer});
+  });
+
+  it('should be callable by monetary policy', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.rebase(1, transferAmount, { from: user }))
+    ).to.be.false;
+  });
+
+  it('should not be callable by others', async function () {
+    expect(
+      await chain.isEthException(uEquilibriums.rebase(1, transferAmount, { from: deployer }))
+    ).to.be.true;
+  });
+});
+
+contract('UEquilibriums:Rebase:Expansion', function (accounts) {
+  // Rebase +5M (10%), with starting balances A:750 and B:250.
+  const A = accounts[2];
+  const B = accounts[3];
+  const policy = accounts[1];
+  const rebaseAmt = INTIAL_SUPPLY / 10;
+
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+    await uEquilibriums.transfer(A, toUFrgDenomination(750), { from: deployer });
+    await uEquilibriums.transfer(B, toUFrgDenomination(250), { from: deployer });
+    r = await uEquilibriums.rebase(1, rebaseAmt, {from: policy});
+  });
+
+  it('should increase the totalSupply', async function () {
+    b = await uEquilibriums.totalSupply.call();
+    b.should.be.bignumber.eq(initialSupply.plus(rebaseAmt));
+  });
+
+  it('should increase individual balances', async function () {
+    b = await uEquilibriums.balanceOf.call(A);
+    b.should.be.bignumber.eq(toUFrgDenomination(825));
+
+    b = await uEquilibriums.balanceOf.call(B);
+    b.should.be.bignumber.eq(toUFrgDenomination(275));
+  });
+
+  it('should emit Rebase', async function () {
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogRebase');
+    log.args.epoch.should.be.bignumber.eq(1);
+    log.args.totalSupply.should.be.bignumber.eq(initialSupply.plus(rebaseAmt));
+  });
+
+  it('should return the new supply', async function () {
+    const returnVal = await uEquilibriums.rebase.call(2, rebaseAmt, {from: policy});
+    await uEquilibriums.rebase(2, rebaseAmt, {from: policy});
+    const supply = await uEquilibriums.totalSupply.call();
+    returnVal.should.be.bignumber.eq(supply);
+  });
+});
+
+contract('UEquilibriums:Rebase:Expansion', function (accounts) {
+  const policy = accounts[1];
+  const MAX_SUPPLY = new BigNumber(2).pow(128).minus(1);
+
+  describe('when totalSupply is less than MAX_SUPPLY and expands beyond', function () {
+    before('setup UEquilibriums contract', async function () {
+      await setupContracts();
+      await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+      const totalSupply = await uEquilibriums.totalSupply.call();
+      await uEquilibriums.rebase(1, MAX_SUPPLY.minus(totalSupply).minus(toUFrgDenomination(1)), {from: policy});
+      r = await uEquilibriums.rebase(2, toUFrgDenomination(2), {from: policy});
+    });
+
+    it('should increase the totalSupply to MAX_SUPPLY', async function () {
+      b = await uEquilibriums.totalSupply.call();
+      b.should.be.bignumber.eq(MAX_SUPPLY);
+    });
+
+    it('should emit Rebase', async function () {
+      const log = r.logs[0];
+      expect(log).to.exist;
+      expect(log.event).to.eq('LogRebase');
+      expect(log.args.epoch.toNumber()).to.eq(2);
+      log.args.totalSupply.should.be.bignumber.eq(MAX_SUPPLY);
+    });
+  });
+
+  describe('when totalSupply is MAX_SUPPLY and expands', function () {
+    before(async function () {
+      b = await uEquilibriums.totalSupply.call();
+      b.should.be.bignumber.eq(MAX_SUPPLY);
+      r = await uEquilibriums.rebase(3, toUFrgDenomination(2), {from: policy});
+    });
+
+    it('should NOT change the totalSupply', async function () {
+      b = await uEquilibriums.totalSupply.call();
+      b.should.be.bignumber.eq(MAX_SUPPLY);
+    });
+
+    it('should emit Rebase', async function () {
+      const log = r.logs[0];
+      expect(log).to.exist;
+      expect(log.event).to.eq('LogRebase');
+      expect(log.args.epoch.toNumber()).to.eq(3);
+      log.args.totalSupply.should.be.bignumber.eq(MAX_SUPPLY);
+    });
+  });
+});
+
+contract('UEquilibriums:Rebase:NoChange', function (accounts) {
+  // Rebase (0%), with starting balances A:750 and B:250.
+  const A = accounts[2];
+  const B = accounts[3];
+  const policy = accounts[1];
+
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+    await uEquilibriums.transfer(A, toUFrgDenomination(750), { from: deployer });
+    await uEquilibriums.transfer(B, toUFrgDenomination(250), { from: deployer });
+    r = await uEquilibriums.rebase(1, 0, {from: policy});
+  });
+
+  it('should NOT CHANGE the totalSupply', async function () {
+    b = await uEquilibriums.totalSupply.call();
+    b.should.be.bignumber.eq(initialSupply);
+  });
+
+  it('should NOT CHANGE individual balances', async function () {
+    b = await uEquilibriums.balanceOf.call(A);
+    b.should.be.bignumber.eq(toUFrgDenomination(750));
+
+    b = await uEquilibriums.balanceOf.call(B);
+    b.should.be.bignumber.eq(toUFrgDenomination(250));
+  });
+
+  it('should emit Rebase', async function () {
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogRebase');
+    log.args.epoch.should.be.bignumber.eq(1);
+    log.args.totalSupply.should.be.bignumber.eq(initialSupply);
+  });
+});
+
+contract('UEquilibriums:Rebase:Contraction', function (accounts) {
+  // Rebase -5M (-10%), with starting balances A:750 and B:250.
+  const A = accounts[2];
+  const B = accounts[3];
+  const policy = accounts[1];
+  const rebaseAmt = INTIAL_SUPPLY / 10;
+
+  before('setup UEquilibriums contract', async function () {
+    await setupContracts();
+    await uEquilibriums.setMonetaryPolicy(policy, {from: deployer});
+    await uEquilibriums.transfer(A, toUFrgDenomination(750), { from: deployer });
+    await uEquilibriums.transfer(B, toUFrgDenomination(250), { from: deployer });
+    r = await uEquilibriums.rebase(1, -rebaseAmt, {from: policy});
+  });
+
+  it('should decrease the totalSupply', async function () {
+    b = await uEquilibriums.totalSupply.call();
+    b.should.be.bignumber.eq(initialSupply.minus(rebaseAmt));
+  });
+
+  it('should decrease individual balances', async function () {
+    b = await uEquilibriums.balanceOf.call(A);
+    b.should.be.bignumber.eq(toUFrgDenomination(675));
+
+    b = await uEquilibriums.balanceOf.call(B);
+    b.should.be.bignumber.eq(toUFrgDenomination(225));
+  });
+
+  it('should emit Rebase', async function () {
+    const log = r.logs[0];
+    expect(log).to.exist;
+    expect(log.event).to.eq('LogRebase');
+    log.args.epoch.should.be.bignumber.eq(1);
+    log.args.totalSupply.should.be.bignumber.eq(initialSupply.minus(rebaseAmt));
+  });
+});
+
+contract('UEquilibriums:Transfer', function (accounts) {
+  const A = accounts[2];
+  const B = accounts[3];
+  const C = accounts[4];
+
+  before('setup UEquilibriums contract', setupContracts);
+
+  describe('deployer transfers 12 to A', function () {
+    it('should have correct balances', async function () {
+      const deployerBefore = await uEquilibriums.balanceOf.call(deployer);
+      await uEquilibriums.transfer(A, toUFrgDenomination(12), { from: deployer });
+      b = await uEquilibriums.balanceOf.call(deployer);
+      b.should.be.bignumber.eq(deployerBefore.minus(toUFrgDenomination(12)));
+      b = await uEquilibriums.balanceOf.call(A);
+      b.should.be.bignumber.eq(toUFrgDenomination(12));
+    });
+  });
+
+  describe('deployer transfers 15 to B', async function () {
+    it('should have balances [973,15]', async function () {
+      const deployerBefore = await uEquilibriums.balanceOf.call(deployer);
+      await uEquilibriums.transfer(B, toUFrgDenomination(15), { from: deployer });
+      b = await uEquilibriums.balanceOf.call(deployer);
+      b.should.be.bignumber.eq(deployerBefore.minus(toUFrgDenomination(15)));
+      b = await uEquilibriums.balanceOf.call(B);
+      b.should.be.bignumber.eq(toUFrgDenomination(15));
+    });
+  });
+
+  describe('deployer transfers the rest to C', async function () {
+    it('should have balances [0,973]', async function () {
+      const deployerBefore = await uEquilibriums.balanceOf.call(deployer);
+      await uEquilibriums.transfer(C, deployerBefore, { from: deployer });
+      b = await uEquilibriums.balanceOf.call(deployer);
+      b.should.be.bignumber.eq(0);
+      b = await uEquilibriums.balanceOf.call(C);
+      b.should.be.bignumber.eq(deployerBefore);
+    });
+  });
+
+  describe('when the recipient address is the contract address', function () {
+    const owner = A;
+
+    it('reverts on transfer', async function () {
+      expect(
+        await chain.isEthException(uEquilibriums.transfer(uEquilibriums.address, unitTokenAmount, { from: owner }))
+      ).to.be.true;
+    });
+
+    it('reverts on transferFrom', async function () {
+      expect(
+        await chain.isEthException(uEquilibriums.transferFrom(owner, uEquilibriums.address, unitTokenAmount, { from: owner }))
+      ).to.be.true;
+    });
+  });
+
+  describe('when the recipient is the zero address', function () {
+    const owner = A;
+
+    before(async function () {
+      r = await uEquilibriums.approve(ZERO_ADDRESS, transferAmount, { from: owner });
+    });
+    it('emits an approval event', async function () {
+      expect(r.logs.length).to.eq(1);
+      expect(r.logs[0].event).to.eq('Approval');
+      expect(r.logs[0].args.owner).to.eq(owner);
+      expect(r.logs[0].args.spender).to.eq(ZERO_ADDRESS);
+      r.logs[0].args.value.should.be.bignumber.eq(transferAmount);
+    });
+
+    it('transferFrom should fail', async function () {
+      expect(
+        await chain.isEthException(uEquilibriums.transferFrom(owner, ZERO_ADDRESS, transferAmount, { from: C }))
+      ).to.be.true;
+    });
+  });
+});

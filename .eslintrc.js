@@ -48,9 +48,9 @@ module.exports = {
               "addr", "conf", "cmd",
 
               // project-specific
-              "rebase", "fracs", "frg", "rng", "blockchain", "minlot",
+              "rebase", "fracs", "equ", "rng", "blockchain", "minlot",
               "redemptions", "rebased", "ganache", "ethclient",
-              "bytecode", "Binance", "ethereum", "opcode", "cpi", "bancacy",
+              "bytecode", "Binance", "ethereum", "opcode", "sap", "bancacy",
 
               // names
               "nithin",
