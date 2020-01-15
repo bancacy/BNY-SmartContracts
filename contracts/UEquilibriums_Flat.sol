@@ -722,7 +722,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     nodePrice = nodePrice.div(_fracsPerEquilibrium);
     uint256 fracValueNode = nodePrice.mul(_fracsPerEquilibrium);
 
-    require(_fracBalances[msg.sender] >= fracValueNode, "toooooo");
+    require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enough BNY");
    _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
    _totalSupply = _totalSupply.sub(uint256(nodePrice));
     emit Transfer(msg.sender, address(0), nodePrice);
@@ -731,9 +731,14 @@ contract Equilibrium is ERC20Detailed, Ownable {
     }
 
 
+
+
+
+    
+
  
 
-
+   
 
 
 
