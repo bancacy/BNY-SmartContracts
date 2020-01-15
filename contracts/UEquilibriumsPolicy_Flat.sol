@@ -164,7 +164,7 @@ contract Ownable is Initializable {
 
 
 
-pragma solidity 0.4.24;
+pragma solidity 0.5.11;
 
 
 /**
@@ -590,7 +590,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     }
 }
 
-pragma solidity 0.4.24;
+pragma solidity 0.5.11;
 
 
 /**
