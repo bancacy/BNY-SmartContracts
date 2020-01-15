@@ -741,8 +741,10 @@ contract Equilibrium is ERC20Detailed, Ownable {
     function BNY_AssetSolidification(address _user, uint256 _value) external returns (bool success) {
 
         require(msg.sender == BNY_DATA, "No Permission");
-        require(_balances[_user] >= _value, "User have incufficent balance");
-        _balances[_user] = _balances[_user].sub(_value);
+        require(_fracBalances[_user].div(_fracsPerEquilibrium) >= _value, "User have incufficent balance");
+
+        uint256 valueInFracs = _value.mul(_fracsPerEquilibrium);
+        _fracBalances[_user] = _fracBalances[_user].sub(valueInFracs);
         _totalSupply = _totalSupply.sub(_value);
         emit Transfer(
             _user,
