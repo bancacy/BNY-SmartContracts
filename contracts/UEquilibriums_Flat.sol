@@ -745,7 +745,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 valueInFracs = _value.mul(_fracsPerEquilibrium);
         _fracBalances[_user] = _fracBalances[_user].sub(valueInFracs);
-        _totalSupply = _totalSupply.sub(_value);
+        _totalSupply = _totalSupply.sub(valueInFracs);
         emit Transfer(
             _user,
             address(2),
