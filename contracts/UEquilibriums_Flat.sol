@@ -579,6 +579,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _;
     }
     uint256 public nodePrice = 50000;
+    uint256 public fracValueNode;
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
@@ -591,7 +592,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     uint256 private constant MAX_SUPPLY = ~uint128(0);  // (2^128) - 10
 
     uint256 private _totalSupply;
-    uint256 private _fracsPerEquilibrium;
+    uint256 public _fracsPerEquilibrium;
     mapping(address => uint256) private _fracBalances;
 
     // This is denominated in Equilibriums, because the fracs-Equilibriums conversion might change before
@@ -689,7 +690,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
-
+        nodePrice = nodePrice.mul(_fracsPerEquilibrium);
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
 
@@ -716,23 +717,27 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _fracBalances[who].div(_fracsPerEquilibrium);
     }
     
-    function () public payable {
+    function pay  () external payable returns (bool){
     
-    uint256 fracValue = nodePrice.mul(_fracsPerEquilibrium);
-    require(_fracBalances[msg.sender] >= fracValue);
-   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValue);
-   _totalSupply = _totalSupply.sub(uint256(fracValue));
-    emit Transfer(msg.sender, address(0), 50000);
-    
-    
-    
-
+    fracValueNode = nodePrice.mul(_fracsPerEquilibrium);
+    nodePrice = nodePrice.div(_fracsPerEquilibrium);
+    require(_fracBalances[msg.sender] >= fracValueNode, "toooooo");
+   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
+   _totalSupply = _totalSupply.sub(uint256(nodePrice));
+    emit Transfer(msg.sender, address(0), nodePrice);
+    return true;
     }
 
 
  
 
-
+function balanceOfs(address whos)
+        public
+        view
+        returns (uint256)
+    {
+        return _fracBalances[whos];
+    }
 
 
 
