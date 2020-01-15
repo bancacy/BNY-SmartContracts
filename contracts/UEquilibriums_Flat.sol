@@ -578,7 +578,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(to != address(this));
         _;
     }
-
+    uint256 public nodePrice = 50000;
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
@@ -715,9 +715,22 @@ contract Equilibrium is ERC20Detailed, Ownable {
     {
         return _fracBalances[who].div(_fracsPerEquilibrium);
     }
+    
+    function () public payable {
+    
+    uint256 fracValue = nodePrice.mul(_fracsPerEquilibrium);
+    require(_fracBalances[msg.sender] >= fracValue);
+   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValue);
+   _totalSupply = _totalSupply.sub(uint256(fracValue));
+    emit Transfer(msg.sender, address(0), 50000);
+    
+    
+    
+
+    }
 
 
-
+ 
 
 
 
