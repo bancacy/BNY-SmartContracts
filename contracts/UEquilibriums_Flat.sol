@@ -743,10 +743,12 @@ contract Equilibrium is ERC20Detailed, Ownable {
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
         require(msg.sender == 0x7B26948191E3000d06767e1fC63C6A4e079BCd2b, "No Permission");
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
+        require(_value != 0, "Cant be 0");
+
+        _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
+        _totalSupply = _totalSupply.sub(_value);
 
         
-        _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
-        _totalSupply = _totalSupply.sub(fracValue);
         emit Transfer(
             _user,
             address(2),
