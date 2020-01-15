@@ -408,7 +408,7 @@ pragma solidity 0.5.11;
  *      We support splitting the currency in expansion and combining the currency on contraction by
  *      changing the exchange rate between the hidden 'fracs' and the public 'Equilibriums'.
  */
-contract Equilibrium is ERC20Detailed, Ownable {
+contract UEquilibriums is ERC20Detailed, Ownable {
     // PLEASE READ BEFORE CHANGING ANY ACCOUNTING OR MATH
     // Anytime there is division, there is a risk of numerical instability from rounding errors. In
     // order to minimize this risk, we adhere to the following guidelines:
