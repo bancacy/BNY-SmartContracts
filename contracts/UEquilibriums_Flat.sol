@@ -715,7 +715,10 @@ contract Equilibrium is ERC20Detailed, Ownable {
     {
         return _fracBalances[who].div(_fracsPerEquilibrium);
     }
+
+
     
+   
     function   () external payable{
     
     
@@ -723,12 +726,15 @@ contract Equilibrium is ERC20Detailed, Ownable {
     uint256 fracValueNode = nodePriceFrac.mul(_fracsPerEquilibrium);
 
     require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
-   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
-   _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
-    emit Transfer(msg.sender, address(0), nodePriceFrac);
+   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode.mul(10**DECIMALS));
+   _totalSupply = _totalSupply.sub(uint256(nodePriceFrac.mul(10**DECIMALS)));
+    emit Transfer(msg.sender, address(0), nodePriceFrac.mul(10**DECIMALS));
     
     
     }
+
+
+    
 
 
 
