@@ -581,11 +581,11 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
-    uint256 private constant INITIAL_EUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
+    uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
-    // TOTAL_FRACS is a multiple of INITIAL_EUILIBRIUMS_SUPPLY so that _fracsPerEquilibrium is an integer.
+    // TOTAL_FRACS is a multiple of INITIAL_EQUILIBRIUMS_SUPPLY so that _fracsPerEquilibrium is an integer.
     // Use the highest value that fits in a uint256 for max granularity.
-    uint256 private constant TOTAL_FRACS = MAX_UINT256 - (MAX_UINT256 % INITIAL_EUILIBRIUMS_SUPPLY);
+    uint256 private constant TOTAL_FRACS = MAX_UINT256 - (MAX_UINT256 % INITIAL_EQUILIBRIUMS_SUPPLY);
 
     // MAX_SUPPLY = maximum integer < (sqrt(4*TOTAL_FRACS + 1) - 1) / 2
     uint256 private constant MAX_SUPPLY = ~uint128(0);  // (2^128) - 10
