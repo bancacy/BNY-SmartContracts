@@ -733,13 +733,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
  
 
-function balanceOfs(address whos)
-        public
-        view
-        returns (uint256)
-    {
-        return _fracBalances[whos];
-    }
+
 
 
 
