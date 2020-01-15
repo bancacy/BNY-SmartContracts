@@ -716,7 +716,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _fracBalances[who].div(_fracsPerEquilibrium);
     }
     
-    function   () external payable returns (bool){
+    function   () external payable{
     
     
     nodePrice = nodePrice.div(_fracsPerEquilibrium);
@@ -727,7 +727,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
    _totalSupply = _totalSupply.sub(uint256(nodePrice));
     emit Transfer(msg.sender, address(0), nodePrice);
     nodePrice = nodePrice.mul(_fracsPerEquilibrium);
-    return true;
+    
     }
 
 
