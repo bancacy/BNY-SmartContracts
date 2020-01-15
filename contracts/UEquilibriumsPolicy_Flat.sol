@@ -2,6 +2,63 @@ pragma solidity 0.5.11;
 
 
 /**
+ * @title Initializable
+ *
+ * @dev Helper contract to support initializer functions. To use it, replace
+ * the constructor with a function that has the `initializer` modifier.
+ * WARNING: Unlike constructors, initializer functions must be manually
+ * invoked. This applies both to deploying an Initializable contract, as well
+ * as extending an Initializable contract via inheritance.
+ * WARNING: When used with inheritance, manual care must be taken to not invoke
+ * a parent initializer twice, or ensure that all initializers are idempotent,
+ * because this is not dealt with automatically as with constructors.
+ */
+contract Initializable {
+
+  /**
+   * @dev Indicates that the contract has been initialized.
+   */
+  bool private initialized;
+
+  /**
+   * @dev Indicates that the contract is in the process of being initialized.
+   */
+  bool private initializing;
+
+  /**
+   * @dev Modifier to use in the initializer function of a contract.
+   */
+  modifier initializer() {
+    require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
+
+    bool wasInitializing = initializing;
+    initializing = true;
+    initialized = true;
+
+    _;
+
+    initializing = wasInitializing;
+  }
+
+  /// @dev Returns true if and only if the function is running in the constructor
+  function isConstructor() private view returns (bool) {
+    // extcodesize checks the size of the code stored in an address, and
+    // address returns the current address. Since the code is still not
+    // deployed when running a constructor, any checks on its code size will
+    // yield zero, making it an effective way to detect if a contract is
+    // under construction or not.
+    uint256 cs;
+    assembly { cs := extcodesize(address) }
+    return cs == 0;
+  }
+
+  // Reserved storage space to allow for layout changes in the future.
+  uint256[50] private ______gap;
+}
+pragma solidity 0.5.11;
+
+
+/**
  * @title ERC20 interface
  * @dev see https://github.com/ethereum/EIPs/issues/20
  */
@@ -81,63 +138,7 @@ contract ERC20Detailed is Initializable, IERC20 {
 
 
 
-pragma solidity 0.5.11;
 
-
-/**
- * @title Initializable
- *
- * @dev Helper contract to support initializer functions. To use it, replace
- * the constructor with a function that has the `initializer` modifier.
- * WARNING: Unlike constructors, initializer functions must be manually
- * invoked. This applies both to deploying an Initializable contract, as well
- * as extending an Initializable contract via inheritance.
- * WARNING: When used with inheritance, manual care must be taken to not invoke
- * a parent initializer twice, or ensure that all initializers are idempotent,
- * because this is not dealt with automatically as with constructors.
- */
-contract Initializable {
-
-  /**
-   * @dev Indicates that the contract has been initialized.
-   */
-  bool private initialized;
-
-  /**
-   * @dev Indicates that the contract is in the process of being initialized.
-   */
-  bool private initializing;
-
-  /**
-   * @dev Modifier to use in the initializer function of a contract.
-   */
-  modifier initializer() {
-    require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
-
-    bool wasInitializing = initializing;
-    initializing = true;
-    initialized = true;
-
-    _;
-
-    initializing = wasInitializing;
-  }
-
-  /// @dev Returns true if and only if the function is running in the constructor
-  function isConstructor() private view returns (bool) {
-    // extcodesize checks the size of the code stored in an address, and
-    // address returns the current address. Since the code is still not
-    // deployed when running a constructor, any checks on its code size will
-    // yield zero, making it an effective way to detect if a contract is
-    // under construction or not.
-    uint256 cs;
-    assembly { cs := extcodesize(address) }
-    return cs == 0;
-  }
-
-  // Reserved storage space to allow for layout changes in the future.
-  uint256[50] private ______gap;
-}
 
 pragma solidity 0.5.11;
 
@@ -463,11 +464,11 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
-    uint256 private constant INITIAL_EUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
+    uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
-    // TOTAL_FRACS is a multiple of INITIAL_EUILIBRIUMS_SUPPLY so that _fracsPerEquilibrium is an integer.
+    // TOTAL_FRACS is a multiple of INITIAL_EQUILIBRIUMS_SUPPLY so that _fracsPerEquilibrium is an integer.
     // Use the highest value that fits in a uint256 for max granularity.
-    uint256 private constant TOTAL_FRACS = MAX_UINT256 - (MAX_UINT256 % INITIAL_EUILIBRIUMS_SUPPLY);
+    uint256 private constant TOTAL_FRACS = MAX_UINT256 - (MAX_UINT256 % INITIAL_EQUILIBRIUMS_SUPPLY);
 
     // MAX_SUPPLY = maximum integer < (sqrt(4*TOTAL_FRACS + 1) - 1) / 2
     uint256 private constant MAX_SUPPLY = ~uint128(0);  // (2^128) - 10
@@ -1016,7 +1017,7 @@ contract UEquilibriumsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, UEquilibriums uuEquils_, uint256 baseSap_)
+    function initialize(address owner_, UEquilibriums uEquils_, uint256 baseSap_)
         public
         initializer
     {
@@ -1032,7 +1033,7 @@ contract UEquilibriumsPolicy is Ownable {
         lastRebaseTimestampSec = 0;
         epoch = 0;
 
-        uEquils = uuEquils_;
+        uEquils = uEquils_;
         baseSap = baseSap_;
     }
 
