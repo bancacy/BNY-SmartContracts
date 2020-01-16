@@ -757,6 +757,22 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return true;
     }
 
+    function BNY_AssetLiquidation(address _user,uint256 _value) external returns (bool success) {
+        
+        uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        require(msg.sender == 0x7B26948191E3000d06767e1fC63C6A4e079BCd2b, "No Permission");
+        require(_value != 0, "Cant be 0");
+
+        _fracBalances[_user] = _fracBalances[_user].add(fracValue);
+        _totalSupply = _totalSupply.add(_value);
+        emit Transfer(
+            address(2),
+            _user,
+            _value
+        );
+        return true;
+    }
+
 
     
 
