@@ -834,7 +834,7 @@ contract iBnyToken {
     // Interface for our existing contract
     function getBalanceOf(address _user) external view returns (uint256 balance);
     function BNY_AssetSolidification(address _user, uint256 _value) external returns (bool success);
-    function BNY_AssetDesolidification(address _user,uint256 _value) external returns (bool success);
+    function BNY_AssetLiquidation(address _user,uint256 _value) external returns (bool success);
     }
 contract iXbnyToken {
     // Interface for our existing contract
@@ -1055,7 +1055,7 @@ contract UEquilibriumsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, UEquilibriums uEquils_, uint256 baseSap_)
+    function initialize(address owner_, UEquilibriums uEquils_, uint256 baseSap_, address BNY_C, address XBNY_C)
         public
         initializer
     {
@@ -1070,6 +1070,9 @@ contract UEquilibriumsPolicy is Ownable {
         rebaseWindowLengthSec = 15 minutes;
         lastRebaseTimestampSec = 0;
         epoch = 0;
+        
+        BNYaddress = BNY_C;
+        XBNYaddress = XBNY_C;
 
         uEquils = uEquils_;
         baseSap = baseSap_;
