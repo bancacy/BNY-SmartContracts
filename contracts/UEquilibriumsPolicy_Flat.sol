@@ -830,7 +830,18 @@ library UInt256Lib {
 
 pragma solidity 0.5.11;
 
-
+contract iBnyToken {
+    // Interface for our existing contract
+    function getBalanceOf(address _user) external view returns (uint256 balance);
+    function BNY_AssetSolidification(address _user, uint256 _value) external returns (bool success);
+    function BNY_AssetDesolidification(address _user,uint256 _value) external returns (bool success);
+    }
+contract iXbnyToken {
+    // Interface for our existing contract
+    function getBalanceOf(address user) external view returns (uint256 balance);
+    function reduceXBNY(address _user, uint256 _value) external returns (bool success);
+    function increaseXBNY(address _user,uint256 _value) external returns (bool success);
+    }
 
 interface IOracle {
     function getData() external returns (uint256, bool);
@@ -850,6 +861,9 @@ contract UEquilibriumsPolicy is Ownable {
     using SafeMath for uint256;
     using SafeMathInt for int256;
     using UInt256Lib for uint256;
+
+    iBnyToken BnyToken = iBnyToken(BNYaddress);
+    iXbnyToken XbnyToken = iXbnyToken(XBNYaddress);
 
     event LogRebase(
         uint256 indexed epoch,
