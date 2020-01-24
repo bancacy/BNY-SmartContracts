@@ -1106,6 +1106,28 @@ contract UEquilibriumsPolicy is Ownable {
         return (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold)
             || (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
     }
+
+
+
+    function solidifyBNY(uint256 BNYamount) public {
+        
+        uint userBalance = BnyToken.getBalanceOf(msg.sender);
+
+        if(userBalance >= BNYamount){
+            BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
+            XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(uint256(MAP))).div(10000000000));
+    }
+   }
+
+    function liquidateBNY(uint256 XBNYamount) public {
+        
+        uint userBalance = XbnyToken.getBalanceOf(msg.sender);
+
+        if(userBalance >= XBNYamount){
+            XbnyToken.reduceXBNY(msg.sender,XBNYamount);
+            BnyToken.BNY_AssetDesolidification(msg.sender,(XBNYamount.mul(10000000000)).div(uint256(MAP)));
+        }
+    }
 }
 
 
