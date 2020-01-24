@@ -1162,7 +1162,7 @@ contract UEquilibriumsPolicy is Ownable {
         require(rateValid);
 
         XbnyToken.reduceXBNY(msg.sender,XBNYamount);
-        BnyToken.BNY_AssetDesolidification(msg.sender,(XBNYamount.mul(exchangeRate));
+        BnyToken.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
         
     }
 }
