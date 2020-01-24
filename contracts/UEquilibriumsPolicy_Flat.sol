@@ -84,6 +84,8 @@ interface IERC20 {
     uint256 value
   );
 
+
+
   event Approval(
     address indexed owner,
     address indexed spender,
@@ -864,6 +866,8 @@ contract UEquilibriumsPolicy is Ownable {
 
     iBnyToken BnyToken = iBnyToken(BNYaddress);
     iXbnyToken XbnyToken = iXbnyToken(XBNYaddress);
+    
+      event Price_req(bool state);
 
     event LogRebase(
         uint256 indexed epoch,
@@ -1134,8 +1138,9 @@ contract UEquilibriumsPolicy is Ownable {
         uint userBalance = BnyToken.getBalanceOf(msg.sender);
 
         require(userBalance >= BNYamount, "Insufficent BNY");
-            BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
-            XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(uint256(MAP))).div(10000000000));
+        emit Price_req(true);
+        BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
+        XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(uint256(MAP))).div(10000000000));
     
    }
 
@@ -1143,9 +1148,9 @@ contract UEquilibriumsPolicy is Ownable {
         
         uint userBalance = XbnyToken.getBalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
-        
-            XbnyToken.reduceXBNY(msg.sender,XBNYamount);
-            BnyToken.BNY_AssetDesolidification(msg.sender,(XBNYamount.mul(10000000000)).div(uint256(MAP)));
+        emit Price_req(true);
+        XbnyToken.reduceXBNY(msg.sender,XBNYamount);
+        BnyToken.BNY_AssetDesolidification(msg.sender,(XBNYamount.mul(10000000000)).div(uint256(MAP)));
         
     }
 }
