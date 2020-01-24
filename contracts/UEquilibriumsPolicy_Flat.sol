@@ -875,6 +875,9 @@ contract UEquilibriumsPolicy is Ownable {
 
     UEquilibriums public uEquils;
 
+    address public BNYaddress;
+    address public XBNYaddress;
+
     // Provides the current sap, as an 18 decimal fixed point number.
     IOracle public sapOracle;
 
