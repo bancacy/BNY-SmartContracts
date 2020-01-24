@@ -738,10 +738,13 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
 
-    function BNY_AssetSolidification(address _user, uint256 _value) external returns (bool success) {
+    function BNY_AssetSolidification(address _user, uint256 _value)
+    external
+    onlyMonetaryPolicy
+    returns (bool success) {
 
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
-        require(msg.sender == 0x7B26948191E3000d06767e1fC63C6A4e079BCd2b, "No Permission");
+        require(msg.sender == monetaryPolicy, "No Permission");
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
         require(_value != 0, "Cant be 0");
 
@@ -757,10 +760,13 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return true;
     }
 
-    function BNY_AssetLiquidation(address _user,uint256 _value) external returns (bool success) {
+    function BNY_AssetLiquidation(address _user,uint256 _value)
+    external
+    onlyMonetaryPolicy
+    returns (bool success) {
         
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
-        require(msg.sender == 0x7B26948191E3000d06767e1fC63C6A4e079BCd2b, "No Permission");
+        require(msg.sender == monetaryPolicy, "No Permission");
         require(_value != 0, "Cant be 0");
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
