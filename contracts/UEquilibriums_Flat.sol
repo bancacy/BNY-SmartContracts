@@ -740,7 +740,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     function BNY_AssetSolidification(address _user, uint256 _value)
     external
-    onlyMonetaryPolicy
     returns (bool success) {
 
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
