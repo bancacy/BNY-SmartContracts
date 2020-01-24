@@ -1133,20 +1133,20 @@ contract UEquilibriumsPolicy is Ownable {
         
         uint userBalance = BnyToken.getBalanceOf(msg.sender);
 
-        if(userBalance >= BNYamount){
+        require(userBalance >= BNYamount, "Insufficent BNY");
             BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
             XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(uint256(MAP))).div(10000000000));
-    }
+    
    }
 
     function liquidateBNY(uint256 XBNYamount) public {
         
         uint userBalance = XbnyToken.getBalanceOf(msg.sender);
-
-        if(userBalance >= XBNYamount){
+        require(userBalance >= XBNYamount, "Insufficent XBNY");
+        
             XbnyToken.reduceXBNY(msg.sender,XBNYamount);
             BnyToken.BNY_AssetDesolidification(msg.sender,(XBNYamount.mul(10000000000)).div(uint256(MAP)));
-        }
+        
     }
 }
 
