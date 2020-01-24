@@ -834,7 +834,7 @@ pragma solidity 0.5.11;
 
 contract iBnyToken {
     // Interface for our existing contract
-    function getBalanceOf(address _user) external view returns (uint256 balance);
+    function balanceOf(address _user) external view returns (uint256 balance);
     function BNY_AssetSolidification(address _user, uint256 _value) external returns (bool success);
     function BNY_AssetLiquidation(address _user,uint256 _value) external returns (bool success);
     }
@@ -1135,7 +1135,7 @@ contract UEquilibriumsPolicy is Ownable {
 uint256 public exchangeRate = 1000000000000000000;
     function solidifyBNY(uint256 BNYamount) public {
         
-        uint userBalance = BnyToken.getBalanceOf(msg.sender);
+        uint userBalance = BnyToken.balanceOf(msg.sender);
 
         require(userBalance >= BNYamount, "Insufficent BNY");
         emit Price_req(true);
