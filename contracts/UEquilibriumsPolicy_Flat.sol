@@ -1132,19 +1132,20 @@ contract UEquilibriumsPolicy is Ownable {
     }
 
 
-
+uint256 public exchangeRate = 1000000000000000000;
     function solidifyBNY(uint256 BNYamount) public {
         
         uint userBalance = BnyToken.getBalanceOf(msg.sender);
 
         require(userBalance >= BNYamount, "Insufficent BNY");
         emit Price_req(true);
-
+/*
         uint256 exchangeRate;
         bool rateValid;
         (exchangeRate, rateValid) = marketOracle.getData();
         require(rateValid);
-
+/** */
+       
         BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
         XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
@@ -1155,12 +1156,12 @@ contract UEquilibriumsPolicy is Ownable {
         uint userBalance = XbnyToken.getBalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
         emit Price_req(true);
-
+        /*
         uint256 exchangeRate;
         bool rateValid;
         (exchangeRate, rateValid) = marketOracle.getData();
         require(rateValid);
-
+/** */
         XbnyToken.reduceXBNY(msg.sender,XBNYamount);
         BnyToken.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
         
