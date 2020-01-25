@@ -578,8 +578,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(to != address(this));
         _;
     }
-    uint256 public nodePrice = 50000;
+    
     uint256 private constant DECIMALS = 9;
+    uint256 public nodePrice = 50000 * 10**DECIMALS;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
@@ -726,9 +727,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
     uint256 fracValueNode = nodePriceFrac.mul(_fracsPerEquilibrium);
 
     require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
-   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode.mul(10**DECIMALS));
-   _totalSupply = _totalSupply.sub(uint256(nodePriceFrac.mul(10**DECIMALS)));
-    emit Transfer(msg.sender, address(0), nodePriceFrac.mul(10**DECIMALS));
+   _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
+   _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
+    emit Transfer(msg.sender, address(0), nodePriceFrac);
     
     
     }
@@ -747,8 +748,10 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
         require(_value != 0, "Cant be 0");
 
-        _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
-        _totalSupply = _totalSupply.sub(_value);
+        _fracBalances[_user] = _fracBalances[_user].sub(fracValue.mul(10**DECIMALS));
+
+        _totalSupply = _totalSupply.sub(uint256(_value.mul(10**DECIMALS)));
+       
 
         
         emit Transfer(
@@ -761,7 +764,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     function BNY_AssetLiquidation(address _user,uint256 _value)
     external
-    onlyMonetaryPolicy
     returns (bool success) {
         
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
