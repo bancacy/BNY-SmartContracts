@@ -1162,7 +1162,7 @@ uint256 public exchangeRate = 1000000000000000000;
 
     function liquidateBNY(uint256 XBNYamount) public {
         
-        uint userBalance = XbnyToken.getBalanceOf(msg.sender);
+        uint userBalance = XbnyToken.GetbalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
         emit Price_req(true);
         /*
