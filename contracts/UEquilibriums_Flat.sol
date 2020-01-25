@@ -748,9 +748,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
         require(_value != 0, "Cant be 0");
 
-        _fracBalances[_user] = _fracBalances[_user].sub(fracValue.mul(10**DECIMALS));
+        _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
 
-        _totalSupply = _totalSupply.sub(uint256(_value.mul(10**DECIMALS)));
+        _totalSupply = _totalSupply.sub(uint256(fracValue));
        
 
         
