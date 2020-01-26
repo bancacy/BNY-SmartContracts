@@ -832,27 +832,7 @@ library UInt256Lib {
 
 pragma solidity 0.5.11;
 
-contract iBnyToken {
-    // Interface for our existing contract
-    function balanceOf(address who)
-        public
-        view
-        returns (uint256);
 
-    function BNY_AssetSolidification(address _user, uint256 _value)
-    external
-    returns (bool success);
-
-    function BNY_AssetLiquidation(address _user,uint256 _value)
-    external
-    returns (bool success);
-    }
-contract iXbnyToken {
-    // Interface for our existing contract
-    function GetbalanceOf(address user) public returns (uint256 balance);
-    function reduceXBNY(address user,uint256 value) public returns (bool success);
-    function increaseXBNY(address user,uint256 value) public returns (bool success);
-    }
 
 interface IOracle {
     function getData() external returns (uint256, bool);
