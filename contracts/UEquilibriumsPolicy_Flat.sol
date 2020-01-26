@@ -1141,10 +1141,10 @@ contract UEquilibriumsPolicy is Ownable {
     }
 
 
-uint256 public exchangeRate = 1000000000000000000;
+    uint256 public exchangeRate = 100;
     function solidifyBNY(uint256 BNYamount) public {
         
-        uint userBalance = BnyToken.balanceOf(msg.sender);
+        uint256 userBalance = uEquils.balanceOf(msg.sender);
 
         require(userBalance >= BNYamount, "Insufficent BNY");
         emit Price_req(true);
@@ -1162,7 +1162,7 @@ uint256 public exchangeRate = 1000000000000000000;
 
     function liquidateBNY(uint256 XBNYamount) public {
         
-        uint userBalance = XbnyToken.GetbalanceOf(msg.sender);
+        uint256 userBalance = XbnyToken.GetbalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
         emit Price_req(true);
         /*
@@ -1172,7 +1172,7 @@ uint256 public exchangeRate = 1000000000000000000;
         require(rateValid);
 /** */
         XbnyToken.reduceXBNY(msg.sender,XBNYamount);
-        BnyToken.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
         
     }
 }
