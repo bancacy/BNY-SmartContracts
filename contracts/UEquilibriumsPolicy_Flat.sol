@@ -463,8 +463,9 @@ contract UEquilibriums is ERC20Detailed, Ownable {
         require(to != address(this));
         _;
     }
-    uint256 public nodePrice = 50000;
+    
     uint256 private constant DECIMALS = 9;
+    uint256 public nodePrice = 50000 * 10**DECIMALS;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
@@ -600,14 +601,17 @@ contract UEquilibriums is ERC20Detailed, Ownable {
     {
         return _fracBalances[who].div(_fracsPerEquilibrium);
     }
+
+
     
+   
     function   () external payable{
     
     
     uint256 nodePriceFrac = nodePrice.div(_fracsPerEquilibrium);
     uint256 fracValueNode = nodePriceFrac.mul(_fracsPerEquilibrium);
 
-    require(_fracBalances[msg.sender] >= fracValueNode, "toooooo");
+    require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
    _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
    _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
     emit Transfer(msg.sender, address(0), nodePriceFrac);
@@ -616,15 +620,68 @@ contract UEquilibriums is ERC20Detailed, Ownable {
     }
 
 
+
+
+
+
+    function BNY_AssetSolidification(address _user, uint256 _value)
+    external
+    returns (bool success) {
+
+        require(msg.sender == monetaryPolicy, "No Permission");
+        uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
+        require(_value != 0, "Cant be 0");
+
+        _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
+        _totalSupply = _totalSupply.sub(uint256(_value));
+       
+
+        
+        emit Transfer(
+            _user,
+            address(2),
+            _value
+        );
+        return true;
+    }
+
+    function BNY_AssetLiquidation(address _user,uint256 _value)
+    external
+    returns (bool success) {
+      
+        require(msg.sender == monetaryPolicy, "No Permission");
+        uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        require(_value != 0, "Cant be 0");
+
+        _fracBalances[_user] = _fracBalances[_user].add(fracValue);
+        _totalSupply = _totalSupply.add(_value);
+        emit Transfer(
+            address(2),
+            _user,
+            _value
+        );
+        return true;
+    }
+
+
+    
+
+
+
+
+   
+
+
+
+
+
+
+    
+
  
 
-function balanceOfs(address whos)
-        public
-        view
-        returns (uint256)
-    {
-        return _fracBalances[whos];
-    }
+   
 
 
 
@@ -1158,7 +1215,7 @@ contract UEquilibriumsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, UEquilibriums uEquils_, uint256 baseSap_, address BNY_C, address XBNY_C)
+    function initialize(address owner_, UEquilibriums uEquils_, uint256 baseSap_,XBNY xBNY_)
         public
         initializer
     {
@@ -1174,9 +1231,8 @@ contract UEquilibriumsPolicy is Ownable {
         lastRebaseTimestampSec = 0;
         epoch = 0;
         
-        BNYaddress = BNY_C;
-        XBNYaddress = XBNY_C;
-
+       
+        xBNY = xBNY_;
         uEquils = uEquils_;
         baseSap = baseSap_;
     }
@@ -1246,13 +1302,13 @@ contract UEquilibriumsPolicy is Ownable {
 /** */
        
         uEquils.BNY_AssetSolidification(msg.sender,BNYamount);
-        XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
+        xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
 
     function liquidateBNY(uint256 XBNYamount) public {
         
-        uint256 userBalance = XbnyToken.GetbalanceOf(msg.sender);
+        uint256 userBalance = xBNY.GetbalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
         emit Price_req(true);
         /*
@@ -1261,7 +1317,7 @@ contract UEquilibriumsPolicy is Ownable {
         (exchangeRate, rateValid) = marketOracle.getData();
         require(rateValid);
 /** */
-        XbnyToken.reduceXBNY(msg.sender,XBNYamount);
+        xBNY.reduceXBNY(msg.sender,XBNYamount);
         uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
         
     }
