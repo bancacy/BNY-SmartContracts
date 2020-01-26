@@ -799,7 +799,117 @@ library UInt256Lib {
 
 
 
+pragma solidity 0.5.11;
 
+    
+
+      contract XBNY is Ownable { 
+
+    using SafeMath for uint256;
+
+    string  public name = "BANCACY";
+    string  public symbol = "XBNY";
+    string  public standard = "XBNY Token";
+    uint256 public decimals = 18 ;
+    uint256 public totalSupply;
+    address public UEquilibriumsPolicy;
+    
+    event Transfer(
+        address indexed _from,
+        address indexed _to,
+        uint256 _value
+    );
+    
+
+    event Approval(
+        address indexed _owner,
+        address indexed _spender,
+        uint256 _value
+    );
+
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    constructor ()  public {
+        totalSupply = 1;
+        balanceOf[msg.sender] = 1;
+        emit Transfer(address(0x0), msg.sender, totalSupply);
+    }
+
+    
+
+    function setEquilibriumsPolicy(address EquilibriumsPolicy)
+        external
+        onlyOwner
+    {
+        UEquilibriumsPolicy = EquilibriumsPolicy;
+    }
+    
+
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(balanceOf[msg.sender] >= _value,"You dont have sufficent amount of tokens");
+
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
+
+        emit Transfer(msg.sender, _to, _value);
+
+        return true;
+    }
+    
+function approve(address _spender, uint256 _value) public returns (bool success) {
+        allowance[msg.sender][_spender] = _value;
+
+        emit Approval(msg.sender, _spender, _value);
+
+        return true;
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        require(_value <= balanceOf[_from],"");
+        require(_value <= allowance[_from][msg.sender],"");
+
+        balanceOf[_from] = balanceOf[_from].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
+
+        allowance[_from][msg.sender] = allowance[_from][msg.sender].sub(_value);
+
+        emit Transfer(_from, _to, _value);
+
+        return true;
+    }
+
+    function reduceXBNY(address user,uint256 value) public returns (bool success) {
+        require(msg.sender == UEquilibriumsPolicy,"No Premission");
+        require(balanceOf[user] >= value, "User have incufficent balance");
+
+        balanceOf[user] = balanceOf[user].sub(value);
+        totalSupply = totalSupply.sub(value);
+
+        emit Transfer(user, address(2), value);
+
+        return true;
+    }
+    function increaseXBNY(address user,uint256 value) public returns (bool success) {
+        require(msg.sender == UEquilibriumsPolicy,"No Premission");
+        
+        
+        balanceOf[user] = balanceOf[user].add(value);
+        totalSupply = totalSupply.add(value);
+
+        emit Transfer(address(2), user, value);
+
+        return true;
+    }     
+
+    function GetbalanceOf(address user) public returns (uint256 balance) {
+        require(msg.sender == UEquilibriumsPolicy,"No Premission");
+        
+        return balanceOf[user];
+    }
+
+
+}
 
 
 
@@ -853,8 +963,7 @@ contract UEquilibriumsPolicy is Ownable {
     using SafeMathInt for int256;
     using UInt256Lib for uint256;
 
-    iBnyToken BnyToken = iBnyToken(BNYaddress);
-    iXbnyToken XbnyToken = iXbnyToken(XBNYaddress);
+    
     
       event Price_req(bool state);
 
@@ -867,6 +976,7 @@ contract UEquilibriumsPolicy is Ownable {
     );
 
     UEquilibriums public uEquils;
+    XBNY public xBNY;
 
     address public BNYaddress;
     address public XBNYaddress;
@@ -1135,7 +1245,7 @@ contract UEquilibriumsPolicy is Ownable {
         require(rateValid);
 /** */
        
-        BnyToken.BNY_AssetSolidification(msg.sender,BNYamount);
+        uEquils.BNY_AssetSolidification(msg.sender,BNYamount);
         XbnyToken.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
