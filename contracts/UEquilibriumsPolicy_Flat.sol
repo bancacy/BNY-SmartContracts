@@ -867,7 +867,7 @@ pragma solidity 0.5.11;
     string  public name = "BANCACY";
     string  public symbol = "XBNY";
     string  public standard = "XBNY Token";
-    uint256 public decimals = 18 ;
+    uint256 public decimals = 9 ;
     uint256 public totalSupply;
     address public UEquilibriumsPolicy;
     
@@ -1287,7 +1287,7 @@ contract UEquilibriumsPolicy is Ownable {
     }
 
 
-    uint256 public exchangeRate = 100;
+    uint256 public exchangeRate = 1;
     function solidifyBNY(uint256 BNYamount) public {
         
         uint256 userBalance = uEquils.balanceOf(msg.sender);
