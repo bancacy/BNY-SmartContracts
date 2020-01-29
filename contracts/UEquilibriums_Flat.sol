@@ -1016,12 +1016,12 @@ contract Equilibrium is ERC20Detailed, Ownable {
         rebasePaused = false;
         tokenPaused = false;
         
-        MedianO = MedianAddress;
+        
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
-
+        MedianO = MedianAddress;
         
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
@@ -1061,6 +1061,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
     require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
    _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
    _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
+
+    
+    MedianO.addProvider(msg.sender);
     emit Transfer(msg.sender, address(0), nodePriceFrac);
     
     
