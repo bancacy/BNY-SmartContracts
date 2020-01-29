@@ -1285,38 +1285,53 @@ contract UEquilibriumsPolicy is Ownable {
         return (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold)
             || (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
     }
+    
+
+    // Pre asset solidification or liquidation, Nodes are listening to this event.
+    // Nodes push thier report on this function call, then the user can call solidifyBNY or liquidateBNY.
+    function init() public {
+        emit Price_req(true);
+    }
 
 
-    uint256 public exchangeRate = 1;
+
+    // BNY erc-20 token amount to convert into XBNY, function will cheack balance of sender and call
+    //  marketOracle to get the protocol price, if valid, it will exchange BNY to XBNY by calling:
+    //  uEquils.BNY_AssetSolidification and xBNY.increaseXBNY.
+
     function solidifyBNY(uint256 BNYamount) public {
         
         uint256 userBalance = uEquils.balanceOf(msg.sender);
 
         require(userBalance >= BNYamount, "Insufficent BNY");
-        emit Price_req(true);
-/*
+        
+
         uint256 exchangeRate;
         bool rateValid;
         (exchangeRate, rateValid) = marketOracle.getData();
         require(rateValid);
-/** */
-       
+     
         uEquils.BNY_AssetSolidification(msg.sender,BNYamount);
         xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
 
+
+
+
+    // XBNY erc-20 token amount to convert into BNY, function will cheack balance of sender and call
+    //  marketOracle to get the protocol price, if valid, it will exchange XBNY to BNY by calling:
+    //  uEquils.BNY_AssetLiquidation and xBNY.reduceXBNY
     function liquidateBNY(uint256 XBNYamount) public {
         
         uint256 userBalance = xBNY.GetbalanceOf(msg.sender);
         require(userBalance >= XBNYamount, "Insufficent XBNY");
-        emit Price_req(true);
-        /*
+        
         uint256 exchangeRate;
         bool rateValid;
         (exchangeRate, rateValid) = marketOracle.getData();
         require(rateValid);
-/** */
+
         xBNY.reduceXBNY(msg.sender,XBNYamount);
         uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
         
