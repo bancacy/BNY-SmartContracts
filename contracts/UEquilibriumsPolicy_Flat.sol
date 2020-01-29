@@ -1359,6 +1359,7 @@ contract UEquilibriumsPolicy is Ownable {
         uint256 timestampSec
     );
 
+    MedianOracle public Median;
     UEquilibriums public uEquils;
     XBNY public xBNY;
 
