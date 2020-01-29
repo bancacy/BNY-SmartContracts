@@ -1335,7 +1335,7 @@ contract UEquilibriumsPolicy is Ownable {
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(exchangeRate)));
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)));
         
     }
 }
