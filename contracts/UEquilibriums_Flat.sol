@@ -1006,7 +1006,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _totalSupply;
     }
 
-    function initialize(address owner_)
+    function initialize(address owner_, MedianOracle MedianAddress)
         public
         initializer
     {
@@ -1015,11 +1015,14 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         rebasePaused = false;
         tokenPaused = false;
-
+        
+        MedianO = MedianAddress;
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
+
+        
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
 
