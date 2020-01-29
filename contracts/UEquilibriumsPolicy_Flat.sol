@@ -1289,7 +1289,12 @@ contract UEquilibriumsPolicy is Ownable {
 
     // Pre asset solidification or liquidation, Nodes are listening to this event.
     // Nodes push thier report on this function call, then the user can call solidifyBNY or liquidateBNY.
+    uint256 public delay = 0;
     function init() public {
+
+        require(now >= delay.add(60), 'Can be called once in 60 sec');
+
+        delay = now;
         emit Price_req(true);
     }
 
