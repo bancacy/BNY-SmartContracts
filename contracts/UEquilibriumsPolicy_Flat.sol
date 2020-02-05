@@ -1111,7 +1111,8 @@ contract UEquilibriumsPolicy is Ownable {
 
         uint256 exchangeRate;
         bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
+        address[] reporters;
+        (exchangeRate, rateValid, reporters) = marketOracle.getData();
         require(rateValid);
 
         if (exchangeRate > MAX_RATE) {
