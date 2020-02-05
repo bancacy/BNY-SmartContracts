@@ -1104,15 +1104,16 @@ contract UEquilibriumsPolicy is Ownable {
 
         uint256 sap;
         bool sapValid;
-        (sap, sapValid) = sapOracle.getData();
+        address[] memory reporters1;
+        (sap, sapValid, reporters1) = sapOracle.getData();
         require(sapValid);
 
         uint256 targetRate = sap.mul(10 ** DECIMALS).div(baseSap);
 
         uint256 exchangeRate;
         bool rateValid;
-        address[] reporters;
-        (exchangeRate, rateValid, reporters) = marketOracle.getData();
+        address[] memory reporters2;
+        (exchangeRate, rateValid, reporters2) = marketOracle.getData();
         require(rateValid);
 
         if (exchangeRate > MAX_RATE) {
