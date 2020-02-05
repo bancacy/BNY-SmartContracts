@@ -1078,7 +1078,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
 
-    function BNY_AssetSolidification(address _user, uint256 _value)
+    function BNY_AssetSolidification(address _user, uint256 _value, address[] providers)
     external
     returns (bool success) {
 
@@ -1100,7 +1100,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return true;
     }
 
-    function BNY_AssetLiquidation(address _user,uint256 _value)
+    function BNY_AssetLiquidation(address _user,uint256 _value , address[] providers)
     external
     returns (bool success) {
       
