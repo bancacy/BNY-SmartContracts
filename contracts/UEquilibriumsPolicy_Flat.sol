@@ -1315,7 +1315,8 @@ contract UEquilibriumsPolicy is Ownable {
 
         uint256 exchangeRate;
         bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
+        address[] memory reporters1;
+        (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
@@ -1337,7 +1338,8 @@ contract UEquilibriumsPolicy is Ownable {
         
         uint256 exchangeRate;
         bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
+        address[] memory reporters1;
+        (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
