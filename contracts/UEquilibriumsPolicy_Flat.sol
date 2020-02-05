@@ -1002,7 +1002,7 @@ pragma solidity 0.5.11;
 
 
 interface IOracle {
-    function getData() external returns (uint256, bool);
+    function getData() external returns (uint256, bool,address[]);
 }
 
 

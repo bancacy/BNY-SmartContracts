@@ -574,25 +574,27 @@ contract MedianOracle is Ownable, IOracle {
     * @return AggregatedValue: Median of providers reported values.
     *         valid: Boolean indicating an aggregated value was computed successfully.
     */
-    
-            address MainAddress;
-            uint256 public Where = 0;
+      uint256 public Where = 0;
         uint256 public index = 0;
         uint256 public mainCount =0;
          uint256 public regularNodes;
         uint256  public size ;
         address public nodeAddress;
+        address MainAddress;
+        address[] public validReportsOwnders;
         uint256 public nodeIndex;
         uint256[]  public  validReports;
 
+
     function getData()
         external
-        returns (uint256, bool)
+        returns (uint256, bool,address[])
 
     {  size=0;
         MainAddress=address(0);
         regularNodes=0;
         validReports.length = 0;
+        validReportsOwnders.length = 0;
         nodeAddress= address(0);
         nodeIndex=0;
         mainCount =0;
@@ -624,6 +626,7 @@ contract MedianOracle is Ownable, IOracle {
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else { Where = 4;
                     // Using past report.
+                    validReportsOwnders.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_past].payload);
                     size++;
                     for (uint256 j = 0; j < mainProviders.length; j++) {
@@ -647,6 +650,7 @@ contract MedianOracle is Ownable, IOracle {
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else {Where=7;
                     // Using recent report.
+                    validReportsOwnders.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_recent].payload);
                     size++;
                     for (uint256 j = 0; j < mainProviders.length; j++) {
@@ -666,16 +670,16 @@ contract MedianOracle is Ownable, IOracle {
         }
 
         if (size < minimumProviders) {
-            return (0, false);
+            return (0, false,validReportsOwnders);
         }
 
          regularNodes = validReports.length - mainCount;
         if(regularNodes == 0 || mainCount == 0 )
         {
-          return (0, false);
+          return (0, false,validReportsOwnders);
         }
          if((regularNodes - 1) == mainCount){
-         return (Select.computeMedian(validReports, size), true);
+         return (Select.computeMedian(validReports, size), true,validReportsOwnders);
 
          }
         if(regularNodes != mainCount){
@@ -693,12 +697,12 @@ contract MedianOracle is Ownable, IOracle {
         regularNodes++;
 
         }
-        return (Select.computeMedian(validReports, size), true);
+        return (Select.computeMedian(validReports, size), true,validReportsOwnders);
         }
 
         validReports.push(providerReports[nodeAddress][nodeIndex].payload);
         size++;
-        return (Select.computeMedian(validReports, size), true);
+        return (Select.computeMedian(validReports, size), true,validReportsOwnders);
     }
 
     /**
