@@ -604,8 +604,7 @@ contract UEquilibriums is ERC20Detailed, Ownable {
 
 
     
-   
-    function   () external payable{
+   function   () external payable{
     
     
     uint256 nodePriceFrac = nodePrice.div(_fracsPerEquilibrium);
@@ -614,6 +613,9 @@ contract UEquilibriums is ERC20Detailed, Ownable {
     require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
    _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
    _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
+
+    
+    MedianO.addProvider(msg.sender);
     emit Transfer(msg.sender, address(0), nodePriceFrac);
     
     
