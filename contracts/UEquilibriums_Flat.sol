@@ -1092,7 +1092,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
         _totalSupply = _totalSupply.sub(uint256(_value));
         uint256 i = 0;
-        while(providers[i] != null){
+        while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
