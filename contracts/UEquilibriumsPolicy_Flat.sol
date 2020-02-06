@@ -1735,7 +1735,7 @@ contract UEquilibriumsPolicy is Ownable {
         BNYamount = BNYamount.sub(reward);
 
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
-        uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward);
+        uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward.div(reporters1.length));
         xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
