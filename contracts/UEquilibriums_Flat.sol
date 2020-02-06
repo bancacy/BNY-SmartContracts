@@ -1084,11 +1084,18 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         require(msg.sender == monetaryPolicy, "No Permission");
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        uint256 fracRewardValue = reward.mul(_fracsPerEquilibrium);
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
         require(_value > 0, "Cant < 0");
+        require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
         _totalSupply = _totalSupply.sub(uint256(_value));
+        uint256 i = 0;
+        while(providers[i] != null){
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].sub(fracRewardValue);
+          i++;
+        }
        
 
         
@@ -1107,6 +1114,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(msg.sender == monetaryPolicy, "No Permission");
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
         require(_value > 0, "Cant < 0");
+        require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
