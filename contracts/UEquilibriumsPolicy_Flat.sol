@@ -624,7 +624,7 @@ contract UEquilibriums is ERC20Detailed, Ownable {
 
 
 
-    function BNY_AssetSolidification(address _user, uint256 _value)
+    function BNY_AssetSolidification(address _user, uint256 _value , address[] providers, uint256 reward)
     external
     returns (bool success) {
 
@@ -646,7 +646,7 @@ contract UEquilibriums is ERC20Detailed, Ownable {
         return true;
     }
 
-    function BNY_AssetLiquidation(address _user,uint256 _value)
+    function BNY_AssetLiquidation(address _user,uint256 _value, address[] providers, uint256 reward)
     external
     returns (bool success) {
       
@@ -1320,7 +1320,7 @@ contract UEquilibriumsPolicy is Ownable {
         require(rateValid);
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
-        uEquils.BNY_AssetSolidification(msg.sender,BNYamount);
+        uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reward);
         xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
@@ -1344,7 +1344,7 @@ contract UEquilibriumsPolicy is Ownable {
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)));
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)),reward);
         
     }
 }
