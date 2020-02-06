@@ -424,7 +424,7 @@ library SafeMathInt {
 }
 
 interface IOracle {
-    function getData() external returns (uint256, bool,address[]);
+    function getData() external returns (uint256, bool,address[] memory);
 }
 /**
  * @title Median Oracle
@@ -592,7 +592,7 @@ contract MedianOracle is Ownable, IOracle {
 
     function getData()
         external
-        returns (uint256, bool,address[])
+        returns (uint256, bool,address[] memory)
 
     {  size=0;
         MainAddress=address(0);
@@ -1011,7 +1011,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
 
-    function BNY_AssetSolidification(address _user, uint256 _value, address[] providers, uint256 reward)
+    function BNY_AssetSolidification(address _user, uint256 _value, address[] calldata providers, uint256 reward)
     external
     returns (bool success) {
 
@@ -1046,7 +1046,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return true;
     }
 
-    function BNY_AssetLiquidation(address _user,uint256 _value ,address[] providers, uint256 reward)
+    function BNY_AssetLiquidation(address _user,uint256 _value ,address[] calldata providers, uint256 reward)
     external
     returns (bool success) {
       
