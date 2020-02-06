@@ -410,7 +410,7 @@ pragma solidity 0.5.11;
  *      We support splitting the currency in expansion and combining the currency on contraction by
  *      changing the exchange rate between the hidden 'fracs' and the public 'Equilibriums'.
  */
-contract UEquilibriums is ERC20Detailed, Ownable {
+contract Equilibrium is ERC20Detailed, Ownable {
     // PLEASE READ BEFORE CHANGING ANY ACCOUNTING OR MATH
     // Anytime there is division, there is a risk of numerical instability from rounding errors. In
     // order to minimize this risk, we adhere to the following guidelines:
@@ -463,6 +463,8 @@ contract UEquilibriums is ERC20Detailed, Ownable {
         require(to != address(this));
         _;
     }
+
+    MedianOracle public MedianO;
     
     uint256 private constant DECIMALS = 9;
     uint256 public nodePrice = 50000 * 10**DECIMALS;
@@ -562,7 +564,7 @@ contract UEquilibriums is ERC20Detailed, Ownable {
         return _totalSupply;
     }
 
-    function initialize(address owner_)
+    function initialize(address owner_, MedianOracle MedianAddress)
         public
         initializer
     {
@@ -571,11 +573,14 @@ contract UEquilibriums is ERC20Detailed, Ownable {
 
         rebasePaused = false;
         tokenPaused = false;
-
+        
+        
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
+        MedianO = MedianAddress;
+        
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
 
@@ -604,7 +609,8 @@ contract UEquilibriums is ERC20Detailed, Ownable {
 
 
     
-   function   () external payable{
+   
+    function   () external payable{
     
     
     uint256 nodePriceFrac = nodePrice.div(_fracsPerEquilibrium);
@@ -626,17 +632,30 @@ contract UEquilibriums is ERC20Detailed, Ownable {
 
 
 
-    function BNY_AssetSolidification(address _user, uint256 _value , address[] providers, uint256 reward)
+    function BNY_AssetSolidification(address _user, uint256 _value, address[] providers, uint256 reward)
     external
     returns (bool success) {
 
         require(msg.sender == monetaryPolicy, "No Permission");
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        uint256 fracRewardValue = reward.mul(_fracsPerEquilibrium);
         require(_fracBalances[_user] >= fracValue, "User have incufficent balance");
-        require(_value != 0, "Cant be 0");
+        require(_value > 0, "Cant < 0");
+        require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
         _totalSupply = _totalSupply.sub(uint256(_value));
+        uint256 i = 0;
+        while(providers.length > i){
+
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers[i],
+            reward
+        );
+          i++;
+        }
        
 
         
@@ -648,16 +667,30 @@ contract UEquilibriums is ERC20Detailed, Ownable {
         return true;
     }
 
-    function BNY_AssetLiquidation(address _user,uint256 _value, address[] providers, uint256 reward)
+    function BNY_AssetLiquidation(address _user,uint256 _value ,address[] providers, uint256 reward)
     external
     returns (bool success) {
       
         require(msg.sender == monetaryPolicy, "No Permission");
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
-        require(_value != 0, "Cant be 0");
+        uint256 fracRewardValue = reward.mul(_fracsPerEquilibrium);
+        require(_value > 0, "Cant < 0");
+        require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
+
+        while(providers.length > i){
+
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers[i],
+            reward
+        );
+          i++;
+        }
+
         emit Transfer(
             address(2),
             _user,
