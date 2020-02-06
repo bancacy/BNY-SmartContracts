@@ -1119,11 +1119,24 @@ contract Equilibrium is ERC20Detailed, Ownable {
       
         require(msg.sender == monetaryPolicy, "No Permission");
         uint256 fracValue = _value.mul(_fracsPerEquilibrium);
+        uint256 fracRewardValue = reward.mul(_fracsPerEquilibrium);
         require(_value > 0, "Cant < 0");
         require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
+
+        while(providers.length > i){
+
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers[i],
+            reward
+        );
+          i++;
+        }
+
         emit Transfer(
             address(2),
             _user,
