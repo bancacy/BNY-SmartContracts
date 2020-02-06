@@ -1319,8 +1319,11 @@ contract UEquilibriumsPolicy is Ownable {
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
         
+        uint256 reward = (BNYamount.mul(5)).div(10000);
+        BNYamount = BNYamount.sub(reward);
+        
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
-        uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reward);
+        uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward);
         xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
@@ -1344,7 +1347,7 @@ contract UEquilibriumsPolicy is Ownable {
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)),reward);
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)),reporters1,reward);
         
     }
 }
