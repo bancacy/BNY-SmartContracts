@@ -244,6 +244,40 @@ interface IERC20 {
 }
 
 
+/**
+ * @title Select
+ * @dev Median Selection Library
+ */
+library Select {
+    using SafeMath for uint256;
+
+    /**
+     * @dev Sorts the input array up to the denoted size, and returns the median.
+     * @param array Input array to compute its median.
+     * @param size Number of elements in array to compute the median for.
+     * @return Median of array.
+     */
+    function computeMedian(uint256[] memory array, uint256 size)
+    
+        internal
+        view
+        returns (uint256)
+    {
+        require(size > 0 && array.length >= size);
+        for (uint256 i = 1; i < size; i++) {
+            for (uint256 j = i; j > 0 && array[j-1]  > array[j]; j--) {
+                uint256 tmp = array[j];
+                array[j] = array[j-1];
+                array[j-1] = tmp;
+            }
+        }
+        if (size % 2 == 1) {
+            return array[size / 2];
+        } else {
+            return array[size / 2].add(array[size / 2 - 1]) / 2;
+        }
+    }
+}
 
 pragma solidity 0.5.11;
 
@@ -422,7 +456,9 @@ library SafeMathInt {
 
 
 
-
+interface IOracle {
+    function getData() external returns (uint256, bool,address[]);
+}
 
 
 
@@ -440,6 +476,8 @@ contract MedianOracle is Ownable, IOracle {
         uint256 payload;
         
     }
+    // uEquils address hardcoded
+    address public uEquils;
 
     // Addresses of providers authorized to push reports.
     address[] public providers;
@@ -458,7 +496,7 @@ contract MedianOracle is Ownable, IOracle {
 
     // The number of seconds after which the report is deemed expired.
     uint256 public reportExpirationTimeSec;
-
+ 
     // The number of seconds since reporting that has to pass before a report
     // is usable. /// Time between reports
     uint256 public reportDelaySec;
@@ -574,14 +612,16 @@ contract MedianOracle is Ownable, IOracle {
     * @return AggregatedValue: Median of providers reported values.
     *         valid: Boolean indicating an aggregated value was computed successfully.
     */
-      uint256 public Where = 0;
+    
+            
+            uint256 public Where = 0;
         uint256 public index = 0;
         uint256 public mainCount =0;
          uint256 public regularNodes;
         uint256  public size ;
         address public nodeAddress;
         address MainAddress;
-        address[] public validReportsOwnders;
+        address[] public validReportsOwners;
         uint256 public nodeIndex;
         uint256[]  public  validReports;
 
@@ -594,7 +634,7 @@ contract MedianOracle is Ownable, IOracle {
         MainAddress=address(0);
         regularNodes=0;
         validReports.length = 0;
-        validReportsOwnders.length = 0;
+        validReportsOwners.length = 0;
         nodeAddress= address(0);
         nodeIndex=0;
         mainCount =0;
@@ -626,7 +666,7 @@ contract MedianOracle is Ownable, IOracle {
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else { Where = 4;
                     // Using past report.
-                    validReportsOwnders.push(providerAddress);
+                    validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_past].payload);
                     size++;
                     for (uint256 j = 0; j < mainProviders.length; j++) {
@@ -650,7 +690,7 @@ contract MedianOracle is Ownable, IOracle {
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else {Where=7;
                     // Using recent report.
-                    validReportsOwnders.push(providerAddress);
+                    validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_recent].payload);
                     size++;
                     for (uint256 j = 0; j < mainProviders.length; j++) {
@@ -670,16 +710,16 @@ contract MedianOracle is Ownable, IOracle {
         }
 
         if (size < minimumProviders) {
-            return (0, false,validReportsOwnders);
+            return (0, false,validReportsOwners);
         }
 
          regularNodes = validReports.length - mainCount;
         if(regularNodes == 0 || mainCount == 0 )
         {
-          return (0, false,validReportsOwnders);
+          return (0, false,validReportsOwners);
         }
          if((regularNodes - 1) == mainCount){
-         return (Select.computeMedian(validReports, size), true,validReportsOwnders);
+         return (Select.computeMedian(validReports, size), true,validReportsOwners);
 
          }
         if(regularNodes != mainCount){
@@ -697,22 +737,30 @@ contract MedianOracle is Ownable, IOracle {
         regularNodes++;
 
         }
-        return (Select.computeMedian(validReports, size), true,validReportsOwnders);
+        return (Select.computeMedian(validReports, size), true,validReportsOwners);
         }
 
         validReports.push(providerReports[nodeAddress][nodeIndex].payload);
         size++;
-        return (Select.computeMedian(validReports, size), true,validReportsOwnders);
+        return (Select.computeMedian(validReports, size), true,validReportsOwners);
     }
+
+    function setEquils(address Equilis_)
+        external
+        onlyOwner
+    {
+        uEquils = Equilis_;
+    }
+
 
     /**
      * @notice Authorizes a provider.
      * @param provider Address of the provider.
      */
     function addProvider(address provider)
-        external
-        onlyOwner
-    {
+        external  
+    {   
+        require(msg.sender == uEquils, "Only uEquils can add providers");
         require(providerReports[provider][0].timestamp == 0);
         providers.push(provider);
         providerReports[provider][0].timestamp = 1;
@@ -1125,7 +1173,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
-
+        uint256 i = 0;
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
