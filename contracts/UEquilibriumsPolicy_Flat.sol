@@ -1541,7 +1541,7 @@ contract UEquilibriumsPolicy is Ownable {
             supplyDelta = (MAX_SUPPLY.sub(uEquils.totalSupply())).toInt256Safe();
         }
 
-        uint256 supplyAfterRebase = uEquils.rebase(epoch, supplyDelta);
+        uint256 supplyAfterRebase = uEquils.rebase(epoch, supplyDelta, reporters2);
         assert(supplyAfterRebase <= MAX_SUPPLY);
         emit LogRebase(epoch, exchangeRate, sap, supplyDelta, now);
     }
