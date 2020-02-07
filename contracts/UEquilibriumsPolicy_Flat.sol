@@ -1731,7 +1731,7 @@ contract UEquilibriumsPolicy is Ownable {
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
         
-        uint256 reward = (BNYamount.mul(5)).div(100000);
+        uint256 reward = (BNYamount.mul(5)).div(1000);
         BNYamount = BNYamount.sub(reward);
 
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
@@ -1757,7 +1757,7 @@ contract UEquilibriumsPolicy is Ownable {
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
 
-        uint256 reward = (XBNYamount.mul(5)).div(100000);
+        uint256 reward = (XBNYamount.mul(5)).div(1000);
         XBNYamount = XBNYamount.sub(reward);
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
