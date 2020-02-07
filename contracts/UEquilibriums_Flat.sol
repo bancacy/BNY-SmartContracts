@@ -1046,6 +1046,19 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
+        uint256 fracRewardValue = rebaseReward.mul(_fracsPerEquilibrium);
+        uint256 i = 0;
+        while(providers.length > i){
+
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers[i],
+            rebaseReward
+        );
+          i++;
+        }
+
         // From this point forward, _fracsPerEquilibrium is taken as the source of truth.
         // We recalculate a new _totalSupply to be in agreement with the _fracsPerEquilibrium
         // conversion rate.
