@@ -960,8 +960,11 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     MedianOracle public MedianO;
     
-    uint256 private constant DECIMALS = 9;
+    
     uint256 public nodePrice = 50000 * 10**DECIMALS;
+    uint256 public rebaseReward = 5000 * 10**DECIMALS;
+
+    uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
