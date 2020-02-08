@@ -1520,7 +1520,7 @@ contract UEquilibriumsPolicy is Ownable {
         (sap, sapValid, reporters1) = sapOracle.getData();
         require(sapValid);
 
-        uint256 targetRate = sap.mul(10 ** DECIMALS).div(baseSap);
+        uint256 targetRate = sap;
 
         uint256 exchangeRate;
         bool rateValid;
@@ -1532,7 +1532,7 @@ contract UEquilibriumsPolicy is Ownable {
             exchangeRate = MAX_RATE;
         }
 
-        int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
+        int256 supplyDelta = computeSupplyDelta(targetRate,exchangeRate);
 
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
