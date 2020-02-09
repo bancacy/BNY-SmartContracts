@@ -456,6 +456,9 @@ library SafeMathInt {
 
 
 
+interface IOracle {
+    function getData() external returns (uint256, bool,address[] memory);
+}
 
 
 
@@ -844,9 +847,6 @@ contract sapOracle is Ownable, IOracle {
 
 
 
-interface IOracle {
-    function getData() external returns (uint256, bool,address[] memory);
-}
 
 
 
