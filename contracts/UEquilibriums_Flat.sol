@@ -1069,8 +1069,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
         );
           i++;
         }
-
-        uint256 i = 0;
+        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers2.length)).div(2);
+        i = 0;
         while(providers2.length > i){
 
           _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
