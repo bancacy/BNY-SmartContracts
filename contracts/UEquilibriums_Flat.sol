@@ -456,6 +456,44 @@ library SafeMathInt {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 interface IOracle {
     function getData() external returns (uint256, bool,address[] memory);
 }
@@ -574,7 +612,7 @@ contract MedianOracle is Ownable, IOracle {
     
     function pushReport(uint256 payload) external
     {
-      
+        require(payload > 0 ,"price must be positive");
 
         address providerAddress = msg.sender;
         Report[2] storage reports = providerReports[providerAddress];
@@ -620,7 +658,7 @@ contract MedianOracle is Ownable, IOracle {
          uint256 public regularNodes;
         uint256  public size ;
         address public nodeAddress;
-        address MainAddress;
+        address public MainAddress;
         address[] public validReportsOwners;
         uint256 public nodeIndex;
         uint256[]  public  validReports;
@@ -630,7 +668,12 @@ contract MedianOracle is Ownable, IOracle {
         external
         returns (uint256, bool,address[] memory)
 
-    {  size=0;
+    {
+
+        require(mainProviders.length > 0, "min 1 mainProvider");
+        require(providers.length > 1, "min 2 Providers (1 main 1 reg)");
+
+        size=0;
         MainAddress=address(0);
         regularNodes=0;
         validReports.length = 0;
@@ -640,6 +683,7 @@ contract MedianOracle is Ownable, IOracle {
         mainCount =0;
         index=0;
         Where = 0;
+
         uint256   reportsCount = providers.length;
         
         uint256 minValidTimestamp =  now.sub(reportExpirationTimeSec);
@@ -712,6 +756,7 @@ contract MedianOracle is Ownable, IOracle {
         if (size < minimumProviders) {
             return (0, false,validReportsOwners);
         }
+        
 
          regularNodes = validReports.length - mainCount;
         if(regularNodes == 0 || mainCount == 0 )
@@ -806,48 +851,6 @@ contract MedianOracle is Ownable, IOracle {
         return providers.length;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1069,6 +1072,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         );
           i++;
         }
+
         fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers2.length)).div(2);
         i = 0;
         while(providers2.length > i){

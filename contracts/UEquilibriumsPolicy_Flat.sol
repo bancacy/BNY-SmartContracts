@@ -538,7 +538,7 @@ contract MedianOracle is Ownable, IOracle {
     
     function pushReport(uint256 payload) external
     {
-      
+        require(payload > 0 ,"price must be positive");
 
         address providerAddress = msg.sender;
         Report[2] storage reports = providerReports[providerAddress];
@@ -584,7 +584,7 @@ contract MedianOracle is Ownable, IOracle {
          uint256 public regularNodes;
         uint256  public size ;
         address public nodeAddress;
-        address MainAddress;
+        address public MainAddress;
         address[] public validReportsOwners;
         uint256 public nodeIndex;
         uint256[]  public  validReports;
@@ -594,7 +594,12 @@ contract MedianOracle is Ownable, IOracle {
         external
         returns (uint256, bool,address[] memory)
 
-    {  size=0;
+    {
+
+        require(mainProviders.length > 0, "min 1 mainProvider");
+        require(providers.length > 1, "min 2 Providers (1 main 1 reg)");
+
+        size=0;
         MainAddress=address(0);
         regularNodes=0;
         validReports.length = 0;
@@ -604,6 +609,7 @@ contract MedianOracle is Ownable, IOracle {
         mainCount =0;
         index=0;
         Where = 0;
+
         uint256   reportsCount = providers.length;
         
         uint256 minValidTimestamp =  now.sub(reportExpirationTimeSec);
@@ -676,6 +682,7 @@ contract MedianOracle is Ownable, IOracle {
         if (size < minimumProviders) {
             return (0, false,validReportsOwners);
         }
+        
 
          regularNodes = validReports.length - mainCount;
         if(regularNodes == 0 || mainCount == 0 )
@@ -845,8 +852,12 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     MedianOracle public MedianO;
     
-    uint256 private constant DECIMALS = 9;
+    
     uint256 public nodePrice = 50000 * 10**DECIMALS;
+    uint256 public rebaseReward = 5000 * 10**DECIMALS;
+    uint256 public deploymentTime;
+
+    uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
     uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
 
@@ -900,12 +911,22 @@ contract Equilibrium is ERC20Detailed, Ownable {
         emit LogTokenPaused(paused);
     }
 
+    function rewardHalving()
+        external
+    {
+        require(deploymentTime.add(365 days) > now, "once in 1 year");
+        deploymentTime = deploymentTime.add(365 days);
+        rebaseReward = rebaseReward.div(2);
+    }
+
+
+
     /**
      * @dev Notifies Equilibriums contract about a new rebase cycle.
      * @param supplyDelta The number of new equilibrium tokens to add into circulation via expansion.
      * @return The total number of equilibriums after the supply adjustment.
      */
-    function rebase(uint256 epoch, int256 supplyDelta)
+    function rebase(uint256 epoch, int256 supplyDelta, address[] providers,address[] providers2)
         external
         onlyMonetaryPolicy
         whenRebaseNotPaused
@@ -927,6 +948,32 @@ contract Equilibrium is ERC20Detailed, Ownable {
         }
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
+
+        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers.length)).div(2);
+        uint256 i = 0;
+        while(providers.length > i){
+
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers[i],
+            rebaseReward
+        );
+          i++;
+        }
+
+        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers2.length)).div(2);
+        i = 0;
+        while(providers2.length > i){
+
+          _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers2[i],
+            rebaseReward
+        );
+          i++;
+        }
 
         // From this point forward, _fracsPerEquilibrium is taken as the source of truth.
         // We recalculate a new _totalSupply to be in agreement with the _fracsPerEquilibrium
@@ -953,7 +1000,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         rebasePaused = false;
         tokenPaused = false;
         
-        
+        deploymentTime = now;
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
@@ -1059,7 +1106,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
         uint256 i = 0;
-
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
@@ -1988,9 +2034,9 @@ contract UEquilibriumsPolicy is Ownable {
 
         rebaseLag = 30;
         // minRebaseTimeIntervalSec = 6 hours;
-        minRebaseTimeIntervalSec = 4 minutes;
-        rebaseWindowOffsetSec = 72000;  // 8PM UTC
-        rebaseWindowLengthSec = 15 minutes;
+        minRebaseTimeIntervalSec = 20 minutes;
+        rebaseWindowOffsetSec = 20 minutes;  // 8PM UTC
+        rebaseWindowLengthSec = 10 minutes;
         lastRebaseTimestampSec = 0;
         epoch = 0;
         
