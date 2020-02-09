@@ -1057,7 +1057,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
-        uint256 fracRewardValue = (rebaseReward.mul(_fracsPerEquilibrium)).div(providers.length);
+        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers.length)).div(2);
         uint256 i = 0;
         while(providers.length > i){
 
@@ -1065,6 +1065,18 @@ contract Equilibrium is ERC20Detailed, Ownable {
           emit Transfer(
             address(0),
             providers[i],
+            rebaseReward
+        );
+          i++;
+        }
+
+        uint256 i = 0;
+        while(providers2.length > i){
+
+          _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
+          emit Transfer(
+            address(0),
+            providers2[i],
             rebaseReward
         );
           i++;
