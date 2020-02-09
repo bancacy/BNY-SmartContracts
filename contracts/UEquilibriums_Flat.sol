@@ -962,6 +962,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     }
 
     MedianOracle public MedianO;
+    sapOracle public SapO;
     
     
     uint256 public nodePrice = 50000 * 10**DECIMALS;
@@ -1101,7 +1102,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _totalSupply;
     }
 
-    function initialize(address owner_, MedianOracle MedianAddress)
+    function initialize(address owner_, MedianOracle MedianAddress, sapOracle sapAddress)
         public
         initializer
     {
@@ -1117,6 +1118,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
         MedianO = MedianAddress;
+        SapO = sapAddress;
         
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
