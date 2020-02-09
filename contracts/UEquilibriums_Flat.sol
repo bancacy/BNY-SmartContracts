@@ -1021,7 +1021,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     function rewardHalving()
         external
-        onlyOwner
+        
     {
         require(deploymentTime + 365 days > now, "once in 1 year");
         deploymentTime = deploymentTime.add(365 days);
