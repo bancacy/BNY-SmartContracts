@@ -1018,6 +1018,17 @@ contract Equilibrium is ERC20Detailed, Ownable {
         emit LogTokenPaused(paused);
     }
 
+    function rewardHalving()
+        external
+        onlyOwner
+    {
+        require(deploymentTime + 365 days > now, "once in 1 year");
+        deploymentTime = deploymentTime.add(365 days);
+        rebaseReward = rebaseReward.div(2);
+    }
+
+
+
     /**
      * @dev Notifies Equilibriums contract about a new rebase cycle.
      * @param supplyDelta The number of new equilibrium tokens to add into circulation via expansion.
