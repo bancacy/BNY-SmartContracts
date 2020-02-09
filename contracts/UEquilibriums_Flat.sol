@@ -1034,7 +1034,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
      * @param supplyDelta The number of new equilibrium tokens to add into circulation via expansion.
      * @return The total number of equilibriums after the supply adjustment.
      */
-    function rebase(uint256 epoch, int256 supplyDelta, address[] providers)
+    function rebase(uint256 epoch, int256 supplyDelta, address[] providers,address[] providers2)
         external
         onlyMonetaryPolicy
         whenRebaseNotPaused
