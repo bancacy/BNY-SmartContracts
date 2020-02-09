@@ -1457,9 +1457,6 @@ contract UEquilibriumsPolicy is Ownable {
     // (eg) An oracle value of 1.5e18 it would mean 1 BNY is trading for $1.50.
     IOracle public marketOracle;
 
-    // sap value at the time of launch, as an 18 decimal fixed point number.
-    uint256 private baseSap;
-
     // If the current exchange rate is within this fractional distance from the target, no supply
     // update is performed. Fixed point number--same format as the rate.
     // (ie) abs(rate - targetRate) / targetRate < deviationThreshold, then no supply change.
@@ -1629,7 +1626,7 @@ contract UEquilibriumsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(address owner_, Equilibrium uEquils_, uint256 baseSap_,XBNY xBNY_)
+    function initialize(address owner_, Equilibrium uEquils_,XBNY xBNY_)
         public
         initializer
     {
@@ -1649,7 +1646,7 @@ contract UEquilibriumsPolicy is Ownable {
        
         xBNY = xBNY_;
         uEquils = uEquils_;
-        baseSap = baseSap_;
+    
     }
 
     /**
