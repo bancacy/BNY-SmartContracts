@@ -963,6 +963,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     
     uint256 public nodePrice = 50000 * 10**DECIMALS;
     uint256 public rebaseReward = 5000 * 10**DECIMALS;
+    uint256 public deploymentTime;
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
@@ -1095,7 +1096,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         rebasePaused = false;
         tokenPaused = false;
         
-        
+        deploymentTime = now;
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
