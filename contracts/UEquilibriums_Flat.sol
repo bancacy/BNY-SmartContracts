@@ -1159,6 +1159,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     
     MedianO.addProvider(msg.sender);
+    SapO.addProvider(msg.sender);
     emit Transfer(msg.sender, address(0), nodePriceFrac);
     
     
