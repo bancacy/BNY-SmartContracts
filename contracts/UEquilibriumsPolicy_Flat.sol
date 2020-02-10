@@ -1083,7 +1083,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-
+           require(providers[i] != _user,"nodes cant send");
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -1118,7 +1118,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-
+           require(providers[i] != _user,"nodes cant send");
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -2140,10 +2140,12 @@ contract UEquilibriumsPolicy is Ownable {
         require(rateValid);
         
         uint256 reward = (BNYamount.mul(5)).div(1000);
-        BNYamount = BNYamount.sub(reward);
+        
 
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward.div(reporters1.length));
+
+        BNYamount = BNYamount.sub(reward);
         xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
     
    }
