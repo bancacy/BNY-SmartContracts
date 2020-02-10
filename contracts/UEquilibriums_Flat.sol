@@ -1552,9 +1552,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
        
 
         
-        emit Transfer(
+        emit BNYsol(
             _user,
-            address(2),
             _value
         );
         return true;
@@ -1585,8 +1584,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
           i++;
         }
 
-        emit Transfer(
-            address(2),
+        emit BNYliq(
             _user,
             _value
         );
