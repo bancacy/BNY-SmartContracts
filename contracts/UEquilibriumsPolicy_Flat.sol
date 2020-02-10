@@ -821,8 +821,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
     event LogRebasePaused(bool paused);
     event LogTokenPaused(bool paused);
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
-    event BNYliq(address user, uint256 amount);
-    event BNYsol(address user, uint256 amount);
     event nodeAdd(address user, uint256 price);
 
     // Used for authentication
@@ -955,21 +953,23 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers.length));
         uint256 i = 0;
+        uint256 rewardPlain = (rebaseReward.div(2)).div(providers.length);
 
-        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers.length));
+        _totalSupply = _totalSupply.add(rewardPlain);
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             address(1),
             providers[i],
-            rebaseReward
+            rewardPlain
         );
           i++;
         }
 
         fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers2.length));
-        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers2.length));
+        rewardPlain = (rebaseReward.div(2)).div(providers2.length);
+        _totalSupply = _totalSupply.add(rewardPlain);
         i = 0;
         while(providers2.length > i){
 
@@ -977,7 +977,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
           emit Transfer(
             address(1),
             providers2[i],
-            rebaseReward
+            rewardPlain
         );
           i++;
         }
@@ -1095,8 +1095,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
        
 
         
-        emit BNYsol(
+        emit Transfer(
             _user,
+            address(0),
             _value
         );
         return true;
@@ -1127,7 +1128,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
           i++;
         }
 
-        emit BNYliq(
+        emit Transfer(
+            address(0),
             _user,
             _value
         );
@@ -1141,25 +1143,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
    
-
-
-
-
-
-
-    
-
- 
-
-   
-
-
-
-
-
-
-
-
 
 
 
