@@ -821,6 +821,9 @@ contract Equilibrium is ERC20Detailed, Ownable {
     event LogRebasePaused(bool paused);
     event LogTokenPaused(bool paused);
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
+    event BNYliq(address user, uint256 amount);
+    event BNYsol(address user, uint256 amount);
+    event nodeAdd(address user, uint256 price);
 
     // Used for authentication
     address public monetaryPolicy;
@@ -851,6 +854,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     }
 
     MedianOracle public MedianO;
+    sapOracle public SapO;
     
     
     uint256 public nodePrice = 50000 * 10**DECIMALS;
@@ -949,26 +953,29 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
-        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers.length)).div(2);
+        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers.length));
         uint256 i = 0;
+
+        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers.length));
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            address(1),
             providers[i],
             rebaseReward
         );
           i++;
         }
 
-        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers2.length)).div(2);
+        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers2.length));
+        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers2.length));
         i = 0;
         while(providers2.length > i){
 
           _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            address(1),
             providers2[i],
             rebaseReward
         );
@@ -990,7 +997,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _totalSupply;
     }
 
-    function initialize(address owner_, MedianOracle MedianAddress)
+    function initialize(address owner_, MedianOracle MedianAddress, sapOracle sapAddress)
         public
         initializer
     {
@@ -1006,6 +1013,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
         MedianO = MedianAddress;
+        SapO = sapAddress;
         
         emit Transfer(address(0x0), owner_, _totalSupply);
     }
@@ -1048,7 +1056,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     
     MedianO.addProvider(msg.sender);
-    emit Transfer(msg.sender, address(0), nodePriceFrac);
+    SapO.addProvider(msg.sender);
+    emit nodeAdd(msg.sender, nodePriceFrac);
     
     
     }
@@ -1071,12 +1080,13 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
         _totalSupply = _totalSupply.sub(uint256(_value));
+
         uint256 i = 0;
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            _user,
             providers[i],
             reward
         );
@@ -1085,9 +1095,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
        
 
         
-        emit Transfer(
+        emit BNYsol(
             _user,
-            address(2),
             _value
         );
         return true;
@@ -1105,26 +1114,172 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
+
         uint256 i = 0;
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            _user,
             providers[i],
             reward
         );
           i++;
         }
 
-        emit Transfer(
-            address(2),
+        emit BNYliq(
             _user,
             _value
         );
         return true;
     }
 
+
+    
+
+
+
+
+   
+
+
+
+
+
+
+    
+
+ 
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * @dev Transfer tokens to a specified address.
+     * @param to The address to transfer to.
+     * @param value The amount to be transferred.
+     * @return True on success, false otherwise.
+     */
+    function transfer(address to, uint256 value)
+        public
+        validRecipient(to)
+        whenTokenNotPaused
+        returns (bool)
+    {
+        uint256 fracValue = value.mul(_fracsPerEquilibrium);
+        _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValue);
+        _fracBalances[to] = _fracBalances[to].add(fracValue);
+        emit Transfer(msg.sender, to, value);
+        return true;
+    }
+
+    /**
+     * @dev Function to check the amount of tokens that an owner has allowed to a spender.
+     * @param owner_ The address which owns the funds.
+     * @param spender The address which will spend the funds.
+     * @return The number of tokens still available for the spender.
+     */
+    function allowance(address owner_, address spender)
+        public
+        view
+        returns (uint256)
+    {
+        return _allowedEquilibriums[owner_][spender];
+    }
+
+    /**
+     * @dev Transfer tokens from one address to another.
+     * @param from The address you want to send tokens from.
+     * @param to The address you want to transfer to.
+     * @param value The amount of tokens to be transferred.
+     */
+    function transferFrom(address from, address to, uint256 value)
+        public
+        validRecipient(to)
+        whenTokenNotPaused
+        returns (bool)
+    {
+        _allowedEquilibriums[from][msg.sender] = _allowedEquilibriums[from][msg.sender].sub(value);
+
+        uint256 fracValue = value.mul(_fracsPerEquilibrium);
+        _fracBalances[from] = _fracBalances[from].sub(fracValue);
+        _fracBalances[to] = _fracBalances[to].add(fracValue);
+        emit Transfer(from, to, value);
+
+        return true;
+    }
+
+    /**
+     * @dev Approve the passed address to spend the specified amount of tokens on behalf of
+     * msg.sender. This method is included for ERC20 compatibility.
+     * increaseAllowance and decreaseAllowance should be used instead.
+     * Changing an allowance with this method brings the risk that someone may transfer both
+     * the old and the new allowance - if they are both greater than zero - if a transfer
+     * transaction is mined before the later approve() call is mined.
+     *
+     * @param spender The address which will spend the funds.
+     * @param value The amount of tokens to be spent.
+     */
+    function approve(address spender, uint256 value)
+        public
+        whenTokenNotPaused
+        returns (bool)
+    {
+        _allowedEquilibriums[msg.sender][spender] = value;
+        emit Approval(msg.sender, spender, value);
+        return true;
+    }
+
+    /**
+     * @dev Increase the amount of tokens that an owner has allowed to a spender.
+     * This method should be used instead of approve() to avoid the double approval vulnerability
+     * described above.
+     * @param spender The address which will spend the funds.
+     * @param addedValue The amount of tokens to increase the allowance by.
+     */
+    function increaseAllowance(address spender, uint256 addedValue)
+        public
+        whenTokenNotPaused
+        returns (bool)
+    {
+        _allowedEquilibriums[msg.sender][spender] =
+            _allowedEquilibriums[msg.sender][spender].add(addedValue);
+        emit Approval(msg.sender, spender, _allowedEquilibriums[msg.sender][spender]);
+        return true;
+    }
+
+    /**
+     * @dev Decrease the amount of tokens that an owner has allowed to a spender.
+     *
+     * @param spender The address which will spend the funds.
+     * @param subtractedValue The amount of tokens to decrease the allowance by.
+     */
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        whenTokenNotPaused
+        returns (bool)
+    {
+        uint256 oldValue = _allowedEquilibriums[msg.sender][spender];
+        if (subtractedValue >= oldValue) {
+            _allowedEquilibriums[msg.sender][spender] = 0;
+        } else {
+            _allowedEquilibriums[msg.sender][spender] = oldValue.sub(subtractedValue);
+        }
+        emit Approval(msg.sender, spender, _allowedEquilibriums[msg.sender][spender]);
+        return true;
+    }
+}
 
     
 
