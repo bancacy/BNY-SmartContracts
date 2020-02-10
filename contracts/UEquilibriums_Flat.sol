@@ -1284,6 +1284,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
     event BNYliq(address user, uint256 amount);
     event BNYsol(address user, uint256 amount);
+    event nodeAdd(address user, uint256 price);
 
     // Used for authentication
     address public monetaryPolicy;
@@ -1517,7 +1518,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     
     MedianO.addProvider(msg.sender);
     SapO.addProvider(msg.sender);
-    emit Transfer(msg.sender, address(0), nodePriceFrac);
+    emit nodeAdd(msg.sender, nodePriceFrac);
     
     
     }
