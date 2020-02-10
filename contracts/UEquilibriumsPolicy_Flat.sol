@@ -1914,7 +1914,7 @@ contract UEquilibriumsPolicy is Ownable {
         (sap, sapValid, reporters1) = sapOracle.getData();
         require(sapValid);
 
-        uint256 targetRate = sap;
+        
 
         uint256 exchangeRate;
         bool rateValid;
@@ -1925,6 +1925,8 @@ contract UEquilibriumsPolicy is Ownable {
         if (exchangeRate > MAX_RATE) {
             exchangeRate = MAX_RATE;
         }
+
+        uint256 targetRate = exchangeRate;
 
         int256 supplyDelta = computeSupplyDelta(targetRate,exchangeRate);
 
