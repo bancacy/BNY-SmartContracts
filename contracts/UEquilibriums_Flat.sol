@@ -1544,7 +1544,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-
+           require(providers[i] != _user,"nodes cant send");
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -1579,7 +1579,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-
+           require(providers[i] != _user,"nodes cant send");
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
