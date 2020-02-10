@@ -2155,7 +2155,7 @@ contract UEquilibriumsPolicy is Ownable {
         require(rateValid);
 
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
-        uint256 reward = (XBNYamount.div(exchangeRate)).mul(5).div(1000); //reward in bny for nodes
+        uint256 reward = (XBNYamount.div(exchangeRate)).mul(5).div(1000); // total reward in bny for nodes
         
         xBNY.reduceXBNY(msg.sender,XBNYamount);
         uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate).sub(reward)),reporters1,reward.div(reporters1.length));
