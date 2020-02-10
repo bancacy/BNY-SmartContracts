@@ -1165,133 +1165,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
 
-    /**
-     * @dev Transfer tokens to a specified address.
-     * @param to The address to transfer to.
-     * @param value The amount to be transferred.
-     * @return True on success, false otherwise.
-     */
-    function transfer(address to, uint256 value)
-        public
-        validRecipient(to)
-        whenTokenNotPaused
-        returns (bool)
-    {
-        uint256 fracValue = value.mul(_fracsPerEquilibrium);
-        _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValue);
-        _fracBalances[to] = _fracBalances[to].add(fracValue);
-        emit Transfer(msg.sender, to, value);
-        return true;
-    }
-
-    /**
-     * @dev Function to check the amount of tokens that an owner has allowed to a spender.
-     * @param owner_ The address which owns the funds.
-     * @param spender The address which will spend the funds.
-     * @return The number of tokens still available for the spender.
-     */
-    function allowance(address owner_, address spender)
-        public
-        view
-        returns (uint256)
-    {
-        return _allowedEquilibriums[owner_][spender];
-    }
-
-    /**
-     * @dev Transfer tokens from one address to another.
-     * @param from The address you want to send tokens from.
-     * @param to The address you want to transfer to.
-     * @param value The amount of tokens to be transferred.
-     */
-    function transferFrom(address from, address to, uint256 value)
-        public
-        validRecipient(to)
-        whenTokenNotPaused
-        returns (bool)
-    {
-        _allowedEquilibriums[from][msg.sender] = _allowedEquilibriums[from][msg.sender].sub(value);
-
-        uint256 fracValue = value.mul(_fracsPerEquilibrium);
-        _fracBalances[from] = _fracBalances[from].sub(fracValue);
-        _fracBalances[to] = _fracBalances[to].add(fracValue);
-        emit Transfer(from, to, value);
-
-        return true;
-    }
-
-    /**
-     * @dev Approve the passed address to spend the specified amount of tokens on behalf of
-     * msg.sender. This method is included for ERC20 compatibility.
-     * increaseAllowance and decreaseAllowance should be used instead.
-     * Changing an allowance with this method brings the risk that someone may transfer both
-     * the old and the new allowance - if they are both greater than zero - if a transfer
-     * transaction is mined before the later approve() call is mined.
-     *
-     * @param spender The address which will spend the funds.
-     * @param value The amount of tokens to be spent.
-     */
-    function approve(address spender, uint256 value)
-        public
-        whenTokenNotPaused
-        returns (bool)
-    {
-        _allowedEquilibriums[msg.sender][spender] = value;
-        emit Approval(msg.sender, spender, value);
-        return true;
-    }
-
-    /**
-     * @dev Increase the amount of tokens that an owner has allowed to a spender.
-     * This method should be used instead of approve() to avoid the double approval vulnerability
-     * described above.
-     * @param spender The address which will spend the funds.
-     * @param addedValue The amount of tokens to increase the allowance by.
-     */
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        whenTokenNotPaused
-        returns (bool)
-    {
-        _allowedEquilibriums[msg.sender][spender] =
-            _allowedEquilibriums[msg.sender][spender].add(addedValue);
-        emit Approval(msg.sender, spender, _allowedEquilibriums[msg.sender][spender]);
-        return true;
-    }
-
-    /**
-     * @dev Decrease the amount of tokens that an owner has allowed to a spender.
-     *
-     * @param spender The address which will spend the funds.
-     * @param subtractedValue The amount of tokens to decrease the allowance by.
-     */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        whenTokenNotPaused
-        returns (bool)
-    {
-        uint256 oldValue = _allowedEquilibriums[msg.sender][spender];
-        if (subtractedValue >= oldValue) {
-            _allowedEquilibriums[msg.sender][spender] = 0;
-        } else {
-            _allowedEquilibriums[msg.sender][spender] = oldValue.sub(subtractedValue);
-        }
-        emit Approval(msg.sender, spender, _allowedEquilibriums[msg.sender][spender]);
-        return true;
-    }
-}
-
-    
-
-
-
-
-   
-
-
-
-
-
 
     
 
@@ -2083,7 +1956,7 @@ contract UEquilibriumsPolicy is Ownable {
 
         uint256 targetRate = exchangeRate;
 
-        int256 supplyDelta = computeSupplyDelta(targetRate,exchangeRate);
+        int256 supplyDelta = computeSupplyDelta(targetRate,sap);
 
         // Apply the Dampening factor.
         supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
