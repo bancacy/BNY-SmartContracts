@@ -2154,12 +2154,11 @@ contract UEquilibriumsPolicy is Ownable {
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
 
-        uint256 reward = (XBNYamount.mul(5)).div(1000);
-        XBNYamount = XBNYamount.sub(reward);
+        uint256 reward = (XBNYamount.div(exchangeRate)).mul(5).div(1000); //reward in bny for nodes
         
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate)),reporters1,reward.div(reporters1.length));
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate).sub(reward)),reporters1,reward.div(reporters1.length));
         
     }
 }
