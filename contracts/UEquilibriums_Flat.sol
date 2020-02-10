@@ -1282,6 +1282,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     event LogRebasePaused(bool paused);
     event LogTokenPaused(bool paused);
     event LogMonetaryPolicyUpdated(address monetaryPolicy);
+    event BNYliq(address user, uint256 amount);
+    event BNYsol(address user, uint256 amount);
 
     // Used for authentication
     address public monetaryPolicy;
@@ -1535,6 +1537,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
         _totalSupply = _totalSupply.sub(uint256(_value));
+
         uint256 i = 0;
         while(providers.length > i){
 
@@ -1569,6 +1572,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
         _totalSupply = _totalSupply.add(_value);
+
         uint256 i = 0;
         while(providers.length > i){
 
