@@ -1413,26 +1413,29 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
-        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers.length)).div(2);
+        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers.length));
         uint256 i = 0;
+
+        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers.length));
         while(providers.length > i){
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            address(1),
             providers[i],
             rebaseReward
         );
           i++;
         }
 
-        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium)).div(providers2.length)).div(2);
+        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers2.length));
+        _totalSupply = _totalSupply.add((rebaseReward.div(2)).div(providers2.length));
         i = 0;
         while(providers2.length > i){
 
           _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            address(1),
             providers2[i],
             rebaseReward
         );
