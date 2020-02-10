@@ -1574,7 +1574,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
-            address(0),
+            _user,
             providers[i],
             reward
         );
