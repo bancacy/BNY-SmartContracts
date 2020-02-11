@@ -1395,6 +1395,46 @@ contract Equilibrium is ERC20Detailed, Ownable {
         whenRebaseNotPaused
         returns (uint256)
     {
+
+        uint256 RewardFrac = rebaseReward.div(_fracsPerEquilibrium);
+        uint256 fracValueReward = RewardFrac.mul(_fracsPerEquilibrium);
+
+        uint256 fracRewardValue = ((fracValueReward.div(2)).div(providers.length));
+        uint256 i = 0;
+        uint256 rewardPlain = (RewardFrac.div(2)).div(providers.length);
+
+        
+        while(providers.length > i){
+          _totalSupply = _totalSupply.add(rewardPlain);
+          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
+          emit Transfer(
+            address(1),
+            providers[i],
+            rewardPlain
+        );
+          i++;
+        }
+
+        fracRewardValue = ((fracValueReward.div(2)).div(providers2.length));
+        rewardPlain = (RewardFrac.div(2)).div(providers2.length);
+        
+        i = 0;
+        while(providers2.length > i){
+
+          _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
+          _totalSupply = _totalSupply.add(rewardPlain);
+          emit Transfer(
+            address(1),
+            providers2[i],
+            rewardPlain
+        );
+          i++;
+        }
+
+
+
+
+
         if (supplyDelta == 0) {
             emit LogRebase(epoch, _totalSupply);
             return _totalSupply;
@@ -1412,36 +1452,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
-        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers.length));
-        uint256 i = 0;
-        uint256 rewardPlain = (rebaseReward.div(2)).div(providers.length);
-
-        _totalSupply = _totalSupply.add(rewardPlain);
-        while(providers.length > i){
-
-          _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
-          emit Transfer(
-            address(1),
-            providers[i],
-            rewardPlain
-        );
-          i++;
-        }
-
-        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers2.length));
-        rewardPlain = (rebaseReward.div(2)).div(providers2.length);
-        _totalSupply = _totalSupply.add(rewardPlain);
-        i = 0;
-        while(providers2.length > i){
-
-          _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
-          emit Transfer(
-            address(1),
-            providers2[i],
-            rewardPlain
-        );
-          i++;
-        }
+        
 
         // From this point forward, _fracsPerEquilibrium is taken as the source of truth.
         // We recalculate a new _totalSupply to be in agreement with the _fracsPerEquilibrium
@@ -1473,6 +1484,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
+        rebaseReward = rebaseReward.mul(_fracsPerEquilibrium);
         MedianO = MedianAddress;
         SapO = sapAddress;
         
@@ -1544,7 +1556,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-           require(providers[i] != _user,"nodes cant send");
+           
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -1579,7 +1591,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-           require(providers[i] != _user,"nodes cant send");
+           
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
