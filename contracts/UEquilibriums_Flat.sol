@@ -1377,8 +1377,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     function rewardHalving()
         external
     {
-        require(deploymentTime.add(365 days) > now, "once in 1 year");
-        deploymentTime = deploymentTime.add(365 days);
+        require(now  > deploymentTime.add(90 days), "once in 3 months");
+        deploymentTime = now;
         rebaseReward = rebaseReward.div(2);
     }
 
