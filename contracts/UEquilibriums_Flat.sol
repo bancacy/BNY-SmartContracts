@@ -1332,6 +1332,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     uint256 private constant MAX_SUPPLY = ~uint128(0);  // (2^128) - 10
 
     uint256 private _totalSupply;
+    // Missing supply, to get the right total supply, this amount should be added to _totalSupply.
+    uint256 public _missingSupply;
     uint256 public _fracsPerEquilibrium;
     mapping(address => uint256) private _fracBalances;
 
@@ -1402,10 +1404,13 @@ contract Equilibrium is ERC20Detailed, Ownable {
         uint256 fracRewardValue = ((fracValueReward.div(2)).div(providers.length));
         uint256 i = 0;
         uint256 rewardPlain = (RewardFrac.div(2)).div(providers.length);
-
         
+      
+        _missingSupply = _missingSupply.add(rewardPlain.mul(providers2.length));
+        _missingSupply = _missingSupply.add(rewardPlain.mul(providers1.length));
+
         while(providers.length > i){
-          _totalSupply = _totalSupply.add(rewardPlain);
+         
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             address(1),
@@ -1422,7 +1427,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         while(providers2.length > i){
 
           _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
-          _totalSupply = _totalSupply.add(rewardPlain);
+         
           emit Transfer(
             address(1),
             providers2[i],
@@ -1481,6 +1486,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         
         deploymentTime = now;
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
+        _missingSupply = 0;
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
@@ -1525,7 +1531,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
     require(_fracBalances[msg.sender] >= fracValueNode, "You dont have enought BNY");
    _fracBalances[msg.sender] = _fracBalances[msg.sender].sub(fracValueNode);
-   _totalSupply = _totalSupply.sub(uint256(nodePriceFrac));
+   _missingSupply = _missingSupply.sub(uint256(nodePriceFrac));
+   
 
     
     MedianO.addProvider(msg.sender);
@@ -1552,7 +1559,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
-        _totalSupply = _totalSupply.sub(uint256(_value.sub(reward)));
+       
+        _missingSupply = _missingSupply.sub(uint256(_value.sub(reward)));
 
         uint256 i = 0;
         while(providers.length > i){
@@ -1587,7 +1595,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
-        _totalSupply = _totalSupply.add(_value);
+       
+        _missingSupply = _missingSupply.add(_value);
 
         uint256 i = 0;
         while(providers.length > i){

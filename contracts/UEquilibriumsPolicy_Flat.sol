@@ -856,12 +856,12 @@ contract Equilibrium is ERC20Detailed, Ownable {
     
     
     uint256 public nodePrice = 50000 * 10**DECIMALS;
-    uint256 public rebaseReward = 5000 * 10**DECIMALS;
+    uint256 public rebaseReward = 10000 * 10**DECIMALS;
     uint256 public deploymentTime;
 
     uint256 private constant DECIMALS = 9;
     uint256 private constant MAX_UINT256 = ~uint256(0);
-    uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 50 * 10**6 * 10**DECIMALS;
+    uint256 private constant INITIAL_EQUILIBRIUMS_SUPPLY = 7 * 10**6 * 10**DECIMALS;
 
     // TOTAL_FRACS is a multiple of INITIAL_EQUILIBRIUMS_SUPPLY so that _fracsPerEquilibrium is an integer.
     // Use the highest value that fits in a uint256 for max granularity.
@@ -916,8 +916,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     function rewardHalving()
         external
     {
-        require(deploymentTime.add(365 days) > now, "once in 1 year");
-        deploymentTime = deploymentTime.add(365 days);
+        require(now  > deploymentTime.add(90 days), "once in 3 months");
+        deploymentTime = now;
         rebaseReward = rebaseReward.div(2);
     }
 
@@ -934,22 +934,6 @@ contract Equilibrium is ERC20Detailed, Ownable {
         whenRebaseNotPaused
         returns (uint256)
     {
-        if (supplyDelta == 0) {
-            emit LogRebase(epoch, _totalSupply);
-            return _totalSupply;
-        }
-
-        if (supplyDelta < 0) {
-            _totalSupply = _totalSupply.sub(uint256(supplyDelta.abs()));
-        } else {
-            _totalSupply = _totalSupply.add(uint256(supplyDelta));
-        }
-
-        if (_totalSupply > MAX_SUPPLY) {
-            _totalSupply = MAX_SUPPLY;
-        }
-
-        _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
         uint256 RewardFrac = rebaseReward.div(_fracsPerEquilibrium);
         uint256 fracValueReward = RewardFrac.mul(_fracsPerEquilibrium);
@@ -985,6 +969,29 @@ contract Equilibrium is ERC20Detailed, Ownable {
         );
           i++;
         }
+
+
+
+
+
+        if (supplyDelta == 0) {
+            emit LogRebase(epoch, _totalSupply);
+            return _totalSupply;
+        }
+
+        if (supplyDelta < 0) {
+            _totalSupply = _totalSupply.sub(uint256(supplyDelta.abs()));
+        } else {
+            _totalSupply = _totalSupply.add(uint256(supplyDelta));
+        }
+
+        if (_totalSupply > MAX_SUPPLY) {
+            _totalSupply = MAX_SUPPLY;
+        }
+
+        _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
+
+        
 
         // From this point forward, _fracsPerEquilibrium is taken as the source of truth.
         // We recalculate a new _totalSupply to be in agreement with the _fracsPerEquilibrium
@@ -1084,7 +1091,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
-        _totalSupply = _totalSupply.sub(uint256(_value));
+        _totalSupply = _totalSupply.sub(uint256(_value.sub(reward)));
 
         uint256 i = 0;
         while(providers.length > i){
