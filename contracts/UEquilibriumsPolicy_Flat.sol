@@ -443,6 +443,9 @@ contract MedianOracle is Ownable, IOracle {
     // uEquils address hardcoded
     address public uEquils;
 
+    // Equilib address hardcoded
+    address public Equilib;
+
     // Addresses of providers authorized to push reports.
     address[] public providers;
 
@@ -578,7 +581,7 @@ contract MedianOracle is Ownable, IOracle {
     */
     
             
-            uint256 public Where = 0;
+            
         uint256 public index = 0;
         uint256 public mainCount =0;
          uint256 public regularNodes;
@@ -608,7 +611,7 @@ contract MedianOracle is Ownable, IOracle {
         nodeIndex=0;
         mainCount =0;
         index=0;
-        Where = 0;
+        
 
         uint256   reportsCount = providers.length;
         
@@ -624,17 +627,17 @@ contract MedianOracle is Ownable, IOracle {
             uint256 reportTimestampRecent = reports[index_recent].timestamp;
             if (reportTimestampRecent > maxValidTimestamp) {
                 // Recent report is too recent.
-                Where++;
+                
                 uint256 reportTimestampPast = providerReports[providerAddress][index_past].timestamp;
                 if (reportTimestampPast < minValidTimestamp) {
                     // Past report is too old.
-                    Where=2;
+                    
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else if (reportTimestampPast > maxValidTimestamp) {
                     // Past report is too recent.
-                    Where=3;
+                    
                     emit ReportTimestampOutOfRange(providerAddress);
-                } else { Where = 4;
+                } else { 
                     // Using past report.
                     validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_past].payload);
@@ -653,12 +656,12 @@ contract MedianOracle is Ownable, IOracle {
                     }
                     
                 }
-            } else { Where=5;
+            } else { 
                 // Recent report is not too recent.
-                if (reportTimestampRecent < minValidTimestamp) { Where=6;
+                if (reportTimestampRecent < minValidTimestamp) { 
                     // Recent report is too old.
                     emit ReportTimestampOutOfRange(providerAddress);
-                } else {Where=7;
+                } else {
                     // Using recent report.
                     validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_recent].payload);
@@ -716,10 +719,11 @@ contract MedianOracle is Ownable, IOracle {
         return (Select.computeMedian(validReports, size), true,validReportsOwners);
     }
 
-    function setEquils(address Equilis_)
+    function setEquils(address Equilis_, address EquilibAddress)
         external
         onlyOwner
     {
+        Equilib = EquilibAddress;
         uEquils = Equilis_;
     }
 
@@ -731,7 +735,7 @@ contract MedianOracle is Ownable, IOracle {
     function addProvider(address provider)
         external  
     {   
-        require(msg.sender == uEquils, "Only uEquils can add providers");
+        require(msg.sender == Equilib, "Only Equilib can add providers");
         require(providerReports[provider][0].timestamp == 0);
         providers.push(provider);
         providerReports[provider][0].timestamp = 1;
@@ -1358,6 +1362,9 @@ contract sapOracle is Ownable, IOracle {
     // uEquils address hardcoded
     address public uEquils;
 
+    // Equilib address hardcoded
+    address public Equilib;
+
     // Addresses of providers authorized to push reports.
     address[] public providers;
 
@@ -1493,7 +1500,7 @@ contract sapOracle is Ownable, IOracle {
     */
     
             
-            uint256 public Where = 0;
+          
         uint256 public index = 0;
         uint256 public mainCount =0;
          uint256 public regularNodes;
@@ -1523,7 +1530,7 @@ contract sapOracle is Ownable, IOracle {
         nodeIndex=0;
         mainCount =0;
         index=0;
-        Where = 0;
+        
 
         uint256   reportsCount = providers.length;
         
@@ -1539,17 +1546,17 @@ contract sapOracle is Ownable, IOracle {
             uint256 reportTimestampRecent = reports[index_recent].timestamp;
             if (reportTimestampRecent > maxValidTimestamp) {
                 // Recent report is too recent.
-                Where++;
+                
                 uint256 reportTimestampPast = providerReports[providerAddress][index_past].timestamp;
                 if (reportTimestampPast < minValidTimestamp) {
                     // Past report is too old.
-                    Where=2;
+                   
                     emit ReportTimestampOutOfRange(providerAddress);
                 } else if (reportTimestampPast > maxValidTimestamp) {
                     // Past report is too recent.
-                    Where=3;
+                    
                     emit ReportTimestampOutOfRange(providerAddress);
-                } else { Where = 4;
+                } else { 
                     // Using past report.
                     validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_past].payload);
@@ -1568,12 +1575,12 @@ contract sapOracle is Ownable, IOracle {
                     }
                     
                 }
-            } else { Where=5;
+            } else { 
                 // Recent report is not too recent.
-                if (reportTimestampRecent < minValidTimestamp) { Where=6;
+                if (reportTimestampRecent < minValidTimestamp) { 
                     // Recent report is too old.
                     emit ReportTimestampOutOfRange(providerAddress);
-                } else {Where=7;
+                } else {
                     // Using recent report.
                     validReportsOwners.push(providerAddress);
                     validReports.push(providerReports[providerAddress][index_recent].payload);
@@ -1631,10 +1638,11 @@ contract sapOracle is Ownable, IOracle {
         return (Select.computeMedian(validReports, size), true,validReportsOwners);
     }
 
-    function setEquils(address Equilis_)
+    function setEquils(address Equilis_,address EquilibAddress)
         external
         onlyOwner
     {
+        Equilib = EquilibAddress;
         uEquils = Equilis_;
     }
 
@@ -1646,7 +1654,7 @@ contract sapOracle is Ownable, IOracle {
     function addProvider(address provider)
         external  
     {   
-        require(msg.sender == uEquils, "Only uEquils can add providers");
+        require(msg.sender == Equilib, "Only Equilib can add providers");
         require(providerReports[provider][0].timestamp == 0);
         providers.push(provider);
         providerReports[provider][0].timestamp = 1;
@@ -1692,7 +1700,6 @@ contract sapOracle is Ownable, IOracle {
         return providers.length;
     }
 }
-
 
 
 
