@@ -2119,7 +2119,7 @@ contract UEquilibriumsPolicy is Ownable {
     uint256 public delay = 0;
     function init() public {
 
-        require(now >= delay.add(60), 'Can be called once in 60 sec');
+        require(now >= delay.add(600), 'Can be called once in 10 min');
 
         delay = now;
         emit Price_req(true);
