@@ -1478,7 +1478,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         return _totalSupply;
     }
 
-    function initialize(address owner_, MedianOracle MedianAddress, sapOracle sapAddress)
+    function initialize(address owner_, MedianOracle MedianAddress, sapOracle sapAddress, address thisContractAddress)
         public
         initializer
     {
@@ -1488,6 +1488,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         rebasePaused = false;
         tokenPaused = false;
         
+        thisAddress = thisContractAddress;
         deploymentTime = now;
         _totalSupply = INITIAL_EQUILIBRIUMS_SUPPLY;
         _missingSupply = 0;
