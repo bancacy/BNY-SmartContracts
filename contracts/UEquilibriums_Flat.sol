@@ -1315,7 +1315,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     MedianOracle public MedianO;
     sapOracle public SapO;
     
-    
+    address public thisAddress;
+
     uint256 public nodePrice = 50000 * 10**DECIMALS;
     uint256 public rebaseReward = 10000 * 10**DECIMALS;
     uint256 public deploymentTime;
@@ -1363,6 +1364,14 @@ contract Equilibrium is ERC20Detailed, Ownable {
         rebasePaused = paused;
         emit LogRebasePaused(paused);
     }
+    
+    function setThisAddress(address contract_address)
+        external
+        onlyOwner
+    {
+        thisAddress = contract_address;
+    }
+
 
     /**
      * @dev Pauses or unpauses execution of ERC-20 transactions.
