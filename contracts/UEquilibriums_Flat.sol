@@ -1365,12 +1365,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         emit LogRebasePaused(paused);
     }
     
-    function setThisAddress(address contract_address)
-        external
-        onlyOwner
-    {
-        thisAddress = contract_address;
-    }
+
 
 
     /**
