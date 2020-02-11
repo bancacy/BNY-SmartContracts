@@ -2050,11 +2050,11 @@ contract UEquilibriumsPolicy is Ownable {
         // deviationThreshold = 0.05e18 = 5e16
         deviationThreshold = 5 * 10 ** (DECIMALS-2);
 
-        rebaseLag = 30;
+        rebaseLag = 40;
         // minRebaseTimeIntervalSec = 6 hours;
-        minRebaseTimeIntervalSec = 20 minutes;
-        rebaseWindowOffsetSec = 20 minutes;  // 8PM UTC
-        rebaseWindowLengthSec = 10 minutes;
+        minRebaseTimeIntervalSec = 6 hours;
+        rebaseWindowOffsetSec = 0 minutes; 
+        rebaseWindowLengthSec = 15 minutes;
         lastRebaseTimestampSec = 0;
         epoch = 0;
         
