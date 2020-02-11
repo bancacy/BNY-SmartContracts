@@ -950,7 +950,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         
       
         _missingSupply = _missingSupply.add(rewardPlain.mul(providers2.length));
-        _missingSupply = _missingSupply.add(rewardPlain.mul(providers1.length));
+        _missingSupply = _missingSupply.add(rewardPlain.mul(providers.length));
 
         while(providers.length > i){
          
