@@ -1552,7 +1552,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         require(reward > 0, "Cant < 0");
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
-        _totalSupply = _totalSupply.sub(uint256(_value));
+        _totalSupply = _totalSupply.sub(uint256(_value.sub(reward)));
 
         uint256 i = 0;
         while(providers.length > i){
