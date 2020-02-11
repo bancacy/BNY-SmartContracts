@@ -951,13 +951,16 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
 
-        uint256 fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers.length));
+        uint256 RewardFrac = rebaseReward.div(_fracsPerEquilibrium);
+        uint256 fracValueReward = RewardFrac.mul(_fracsPerEquilibrium);
+
+        uint256 fracRewardValue = ((fracValueReward.div(2)).div(providers.length));
         uint256 i = 0;
-        uint256 rewardPlain = (rebaseReward.div(2)).div(providers.length);
+        uint256 rewardPlain = (RewardFrac.div(2)).div(providers.length);
 
-        _totalSupply = _totalSupply.add(rewardPlain);
+        
         while(providers.length > i){
-
+          _totalSupply = _totalSupply.add(rewardPlain);
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             address(1),
@@ -967,13 +970,14 @@ contract Equilibrium is ERC20Detailed, Ownable {
           i++;
         }
 
-        fracRewardValue = ((rebaseReward.mul(_fracsPerEquilibrium).div(2)).div(providers2.length));
-        rewardPlain = (rebaseReward.div(2)).div(providers2.length);
-        _totalSupply = _totalSupply.add(rewardPlain);
+        fracRewardValue = ((fracValueReward.div(2)).div(providers2.length));
+        rewardPlain = (RewardFrac.div(2)).div(providers2.length);
+        
         i = 0;
         while(providers2.length > i){
 
           _fracBalances[providers2[i]] = _fracBalances[providers2[i]].add(fracRewardValue);
+          _totalSupply = _totalSupply.add(rewardPlain);
           emit Transfer(
             address(1),
             providers2[i],
@@ -1012,6 +1016,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         _fracBalances[owner_] = TOTAL_FRACS;
         _fracsPerEquilibrium = TOTAL_FRACS.div(_totalSupply);
         nodePrice = nodePrice.mul(_fracsPerEquilibrium);
+        rebaseReward = rebaseReward.mul(_fracsPerEquilibrium);
         MedianO = MedianAddress;
         SapO = sapAddress;
         
@@ -1083,7 +1088,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-           require(providers[i] != _user,"nodes cant send");
+           
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -1118,7 +1123,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         uint256 i = 0;
         while(providers.length > i){
-           require(providers[i] != _user,"nodes cant send");
+           
           _fracBalances[providers[i]] = _fracBalances[providers[i]].add(fracRewardValue);
           emit Transfer(
             _user,
@@ -2138,6 +2143,12 @@ contract UEquilibriumsPolicy is Ownable {
         address[] memory reporters1;
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
+
+        uint256 j =0;
+        while(j < reporters1.length){
+            require(reporters1[j] != msg.sender,"nodes cant send");
+            j++;
+        }
         
         uint256 reward = (BNYamount.mul(5)).div(1000);
         
@@ -2166,6 +2177,13 @@ contract UEquilibriumsPolicy is Ownable {
         address[] memory reporters1;
         (exchangeRate, rateValid,reporters1) = marketOracle.getData();
         require(rateValid);
+
+        uint256 j =0;
+        while(j < reporters1.length){
+            require(reporters1[j] != msg.sender,"nodes cant send");
+            j++;
+        }
+        
 
         exchangeRate = exchangeRate.div(10 ** DECIMALS);
         uint256 reward = (XBNYamount.div(exchangeRate)).mul(5).div(1000); // total reward in bny for nodes
