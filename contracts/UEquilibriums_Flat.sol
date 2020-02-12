@@ -1545,7 +1545,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
        
-        _missingSupply = _missingSupply.sub(uint256(_value.sub(reward)));
+        _missingSupply = _missingSupply.sub(uint256(_value.sub(reward).mul(providers.length)));
 
         uint256 i = 0;
         while(providers.length > i){
