@@ -2181,7 +2181,7 @@ contract UEquilibriumsPolicy is Ownable {
         }
         
         
-        
+        uint256 reward = (BNYamount.mul(5)).div(1000);
         uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward.div(reporters1.length));
 
         BNYamount = BNYamount.sub(reward);
