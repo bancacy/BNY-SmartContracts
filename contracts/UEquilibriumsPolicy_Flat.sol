@@ -2217,7 +2217,7 @@ contract UEquilibriumsPolicy is Ownable {
 
      
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(10 ** DECIMALS).div(exchangeRate).sub(reward)),reporters1,reward.div(reporters1.length));
+        uEquils.BNY_AssetLiquidation(msg.sender,((XBNYamount.mul(10 ** DECIMALS).div(exchangeRate)).sub(reward)),reporters1,reward.div(reporters1.length));
         
     }
 }
