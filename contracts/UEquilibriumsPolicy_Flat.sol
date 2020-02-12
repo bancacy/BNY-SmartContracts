@@ -785,6 +785,7 @@ contract MedianOracle is Ownable, IOracle {
 
 
 
+
 pragma solidity 0.5.11;
 
 
@@ -1108,7 +1109,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].sub(fracValue);
        
-        _missingSupply = _missingSupply.sub(uint256(_value.sub(reward)));
+        _missingSupply = _missingSupply.sub(uint256(_value.sub(reward.mul(providers.length))));
 
         uint256 i = 0;
         while(providers.length > i){
@@ -1144,7 +1145,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
         _fracBalances[_user] = _fracBalances[_user].add(fracValue);
        
-        _missingSupply = _missingSupply.add(_value);
+        _missingSupply = _missingSupply.add(_value.add(reward.mul(providers.length)));
 
         uint256 i = 0;
         while(providers.length > i){
