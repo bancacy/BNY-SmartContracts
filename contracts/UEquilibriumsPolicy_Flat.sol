@@ -1712,6 +1712,8 @@ contract sapOracle is Ownable, IOracle {
 
 
 
+
+
 pragma solidity 0.5.11;
 
     
@@ -1744,8 +1746,8 @@ pragma solidity 0.5.11;
     mapping(address => mapping(address => uint256)) public allowance;
 
     constructor ()  public {
-        totalSupply = 1;
-        balanceOf[msg.sender] = 1;
+        totalSupply = 0;
+        balanceOf[msg.sender] = 0;
         emit Transfer(address(0x0), msg.sender, totalSupply);
     }
 
@@ -1823,7 +1825,6 @@ function approve(address _spender, uint256 _value) public returns (bool success)
 
 
 }
-
 
 
 
