@@ -2182,11 +2182,11 @@ contract UEquilibriumsPolicy is Ownable {
         uint256 reward = (BNYamount.mul(5)).div(1000);
         
 
-        exchangeRate = exchangeRate.div(10 ** DECIMALS);
+        
         uEquils.BNY_AssetSolidification(msg.sender,BNYamount,reporters1,reward.div(reporters1.length));
 
         BNYamount = BNYamount.sub(reward);
-        xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate)));
+        xBNY.increaseXBNY(msg.sender,(BNYamount.mul(exchangeRate).div(10 ** DECIMALS)));
     
    }
 
@@ -2213,12 +2213,10 @@ contract UEquilibriumsPolicy is Ownable {
             j++;
         }
         
-
-        exchangeRate = exchangeRate.div(10 ** DECIMALS);
-        uint256 reward = (XBNYamount.div(exchangeRate)).mul(5).div(1000); // total reward in bny for nodes
+        uint256 reward = (XBNYamount.mul(10 ** DECIMALS).div(exchangeRate)).mul(5).div(1000); // total reward in bny for nodes
         
         xBNY.reduceXBNY(msg.sender,XBNYamount);
-        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.div(exchangeRate).sub(reward)),reporters1,reward.div(reporters1.length));
+        uEquils.BNY_AssetLiquidation(msg.sender,(XBNYamount.mul(10 ** DECIMALS).div(exchangeRate).sub(reward)),reporters1,reward.div(reporters1.length));
         
     }
 }
