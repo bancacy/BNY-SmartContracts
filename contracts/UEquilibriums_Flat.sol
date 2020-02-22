@@ -1490,7 +1490,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         view
         returns (uint256)
     {
-        return _totalSupply;
+        return (_totalSupply.add(_missingSupply));
     }
 
     /**
