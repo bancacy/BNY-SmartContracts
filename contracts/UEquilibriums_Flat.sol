@@ -1580,13 +1580,18 @@ MedianO.providersArray
     }
 
 
+
+
+
+
+
     function Vote(address candidate,bool vote)
         public
     {
         //Cheack if msg.sender is provider
         uint256 p =0;
         bool inArray = false;
-        bool alradyInVoting = false;
+        bool isMain = false;
         address[] providersArray = MedianO.providersArray;
         while(p < providersArray.length){
             if(providersArray[p] == msg.sender){
@@ -1600,10 +1605,11 @@ MedianO.providersArray
         require(now <= candidateAddress[candidate][0], "Voting already ended");
 
         //Cheack if msg.sender is MainProvider
+        p = 0;
         address[] providersArray = MedianO.mainProviders;
         while(p < providersArray.length){
             if(providersArray[p] == msg.sender){
-                inArray = true;
+                isMain = true;
             }
             p++;
         }
