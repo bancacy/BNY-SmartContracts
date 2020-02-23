@@ -1584,7 +1584,7 @@ MedianO.providersArray
 
 
 
-
+    //Vote function, provider can vote FOR or AGAINST removing of the candidate from the providers array
     function Vote(address candidate,bool vote)
         public
     {
@@ -1635,10 +1635,19 @@ MedianO.providersArray
             }
         }
 
-
-
-
     }
+
+    
+
+
+    //Ending the vote and pushing the results
+    function pushVoteResultes(address candidate)
+        public
+        {
+            require(now >= candidateAddress[candidate][0], "Voting already ended");
+            require(candidateAddress[candidate][2] != 0, "Atleast 1 Main Vote");
+ 
+        }
 
 
 
