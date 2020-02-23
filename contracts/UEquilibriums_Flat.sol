@@ -1301,7 +1301,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
     // Addresses of providers in voting.
    
     struct candidate {
-        uint256 timestamp;
+        uint256 timestampDeadline;
         uint256 votes;
         bool mainVote;   
     }
@@ -1574,8 +1574,6 @@ MedianO.providersArray
 
         votingAddress.push(candidate);
         candidateAddress[candidate][0] = now.add(24 hours);
-
-
     }
 
 
