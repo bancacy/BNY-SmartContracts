@@ -835,6 +835,7 @@ contract MedianOracle is Ownable, IOracle {
         uint256 payload;
         
     }
+    
     // uEquils address hardcoded
     address public uEquils;
 
@@ -1297,6 +1298,17 @@ contract Equilibrium is ERC20Detailed, Ownable {
     
     address public thisAddress;
 
+    // Addresses of providers in voting.
+   
+    struct candidate {
+        uint256 timestamp;
+        uint256 votes;
+        bool mainVote;   
+    }
+
+    mapping (address => candidate[3]) public candidateAddress;
+    address[] public votingAddress;
+
     uint256 public nodePrice = 50000 * 10**DECIMALS;
     uint256 public rebaseReward = 10000 * 10**DECIMALS;
     uint256 public deploymentTime;
@@ -1525,6 +1537,45 @@ contract Equilibrium is ERC20Detailed, Ownable {
     emit nodeAdd(msg.sender, nodePriceFrac);
     
     
+    }
+
+// cheack if CAD is in the providers
+cheack if CAD is in the array
+add CAD to the array
+set timer of 24h
+
+MedianO.providersArray
+
+    function createVoting(address candidate)
+        public
+    {
+        uint256 p =0;
+        bool inArray = false;
+        bool alradyInVoting = false;
+        address[] providersArray = MedianO.providersArray;
+        while(p < providersArray.length){
+            if(providersArray[p] == candidate){
+                inArray = true;
+            }
+            p++;
+        }
+        require(inArray);
+
+        
+        p = 0;
+        while(p < votingAddress.length){
+            if(votingAddress[p] == candidate){
+                alradyInVoting = true;
+            }
+            p++;
+        }
+
+        require(alradyInVoting == false);
+
+        votingAddress.push(candidate);
+        candidateAddress[candidate][0] = now.add(24 hours);
+
+
     }
 
 
