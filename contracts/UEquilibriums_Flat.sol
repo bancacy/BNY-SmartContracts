@@ -1580,7 +1580,7 @@ MedianO.providersArray
     }
 
 
-    function Vote(bool vote)
+    function Vote(address candidate,bool vote)
         public
     {
         //Cheack if msg.sender is provider
@@ -1595,6 +1595,23 @@ MedianO.providersArray
             p++;
         }
         require(inArray);
+
+
+        require(now <= candidateAddress[candidate][0], "Voting already ended");
+
+        //Cheack if msg.sender is MainProvider
+
+        
+        //Voting FOR removing the provider
+        if(vote){
+            candidateAddress[candidate][1].add(1);
+
+        }
+        
+        //Voting AGAINST removing the provider
+        else{
+          candidateAddress[candidate][1].sub(1);
+        }
 
 
 
