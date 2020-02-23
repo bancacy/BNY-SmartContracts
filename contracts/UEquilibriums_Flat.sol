@@ -1661,6 +1661,9 @@ MedianO.providersArray
             
             //Cheack if positive = removing the provider
             if(candidateAddress[candidate][1] > 0){
+
+                MedianO.removeProvider(candidate);
+                SapO.removeProvider(candidate);
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = 0;
@@ -1669,7 +1672,8 @@ MedianO.providersArray
             
             //Cheack if negative = not removing the provider
             if(candidateAddress[candidate][1] < 0){
-
+                
+                votingAddress // remove
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = 0;
