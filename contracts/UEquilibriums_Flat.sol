@@ -1539,13 +1539,8 @@ contract Equilibrium is ERC20Detailed, Ownable {
     
     }
 
-// cheack if CAD is in the providers
-cheack if CAD is in the array
-add CAD to the array
-set timer of 24h
 
-MedianO.providersArray
-
+    //Create voting against Data Provider, to remove him from the providers array
     function createVoting(address candidate)
         public
         returns (bool success)
@@ -1604,7 +1599,7 @@ MedianO.providersArray
         require(inArray);
 
 
-        require(now <= candidateAddress[candidate][0], "Voting already ended");
+        require(now < candidateAddress[candidate][0], "Voting already ended");
 
 
 
@@ -1647,8 +1642,10 @@ MedianO.providersArray
         public
         returns (bool success)
         {
-            require(now >= candidateAddress[candidate][0], "Voting already ended");
+            require(now > candidateAddress[candidate][0], "Voting is running");
 
+        
+            //Cheack if non Main vote = not removing
             if(candidateAddress[candidate][2] == false){
 
                 removeCandidate(candidate);
@@ -1664,6 +1661,7 @@ MedianO.providersArray
                 
                 removeCandidate(candidate);
                 candidateAddress[candidate][0] = 0;
+                candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = false;
                 return false;
             }
@@ -1696,7 +1694,7 @@ MedianO.providersArray
     
     function removeCandidate(address candidate)
          internal
-         returns (bool success)
+        
          {
              for (uint256 i = 0; i < votingAddress.length; i++) {
             if (votingAddress[i] == candidate) {
