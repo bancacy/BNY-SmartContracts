@@ -1624,7 +1624,7 @@ MedianO.providersArray
         if(vote){
             candidateAddress[candidate][1].add(1);
             if(isMain){
-                candidateAddress[candidate][2].add(1);
+                candidateAddress[candidate][2] = true;
             }
 
         }
@@ -1633,7 +1633,7 @@ MedianO.providersArray
         else{
           candidateAddress[candidate][1].sub(1);
           if(isMain){
-                candidateAddress[candidate][2].sub(1);
+                candidateAddress[candidate][2] = true;
             }
         }
 
@@ -1648,42 +1648,66 @@ MedianO.providersArray
         returns (bool success)
         {
             require(now >= candidateAddress[candidate][0], "Voting already ended");
-            require(candidateAddress[candidate][2] != 0, "Atleast 1 Main Vote");
+
+            if(candidateAddress[candidate][2] == false){
+
+                removeCandidate(candidate);
+                candidateAddress[candidate][0] = 0;
+                candidateAddress[candidate][1] = 0;
+                candidateAddress[candidate][2] = false;
+                return false;
+            }
+            
             
             //Cheack if the votes are equal = not removing the provider
             if(candidateAddress[candidate][1] == 0){
-
-                votingAddress // remove
+                
+                removeCandidate(candidate);
                 candidateAddress[candidate][0] = 0;
-                candidateAddress[candidate][2] = 0;
+                candidateAddress[candidate][2] = false;
                 return false;
             }
             
             //Cheack if positive = removing the provider
             if(candidateAddress[candidate][1] > 0){
-
+                
+                removeCandidate(candidate);
                 MedianO.removeProvider(candidate);
                 SapO.removeProvider(candidate);
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
-                candidateAddress[candidate][2] = 0;
+                candidateAddress[candidate][2] = false;
                 return true;
             }
             
             //Cheack if negative = not removing the provider
             if(candidateAddress[candidate][1] < 0){
                 
-                votingAddress // remove
+                removeCandidate(candidate);
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
-                candidateAddress[candidate][2] = 0;
+                candidateAddress[candidate][2] = false;
                 return true;
 
             }
  
  
         }
-
+    
+    function removeCandidate(address candidate)
+         internal
+         returns (bool success)
+         {
+             for (uint256 i = 0; i < votingAddress.length; i++) {
+            if (votingAddress[i] == candidate) {
+                if (i + 1  != votingAddress.length) {
+                    votingAddress[i] = votingAddress[votingAddress.length-1];
+                }
+                votingAddress.length--;
+                break;
+            }
+        }
+         }
 
 
 
