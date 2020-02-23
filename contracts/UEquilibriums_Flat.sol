@@ -1549,6 +1549,8 @@ MedianO.providersArray
     function createVoting(address candidate)
         public
     {
+
+        //Cheack if the given candidate is provider
         uint256 p =0;
         bool inArray = false;
         bool alradyInVoting = false;
@@ -1561,7 +1563,7 @@ MedianO.providersArray
         }
         require(inArray);
 
-        
+        // Cheack if candidate is not alrady in the votingArray
         p = 0;
         while(p < votingAddress.length){
             if(votingAddress[p] == candidate){
@@ -1571,14 +1573,17 @@ MedianO.providersArray
         }
 
         require(alradyInVoting == false);
-
+        
+        // Add candidate to the votingArray and set the voting exp timestamp
         votingAddress.push(candidate);
         candidateAddress[candidate][0] = now.add(24 hours);
     }
 
+
     function Vote(bool vote)
         public
     {
+        //Cheack if msg.sender is provider
         uint256 p =0;
         bool inArray = false;
         bool alradyInVoting = false;
@@ -1590,6 +1595,9 @@ MedianO.providersArray
             p++;
         }
         require(inArray);
+
+
+
 
     }
 
