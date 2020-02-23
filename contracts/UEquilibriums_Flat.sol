@@ -1304,6 +1304,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         uint256 timestampDeadline;
         uint256 votes;
         bool mainVote;   
+        bool isRunning;
     }
 
     mapping (address => candidate[3]) public candidateAddress;
@@ -1573,6 +1574,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         // Add candidate to the votingArray and set the voting exp timestamp
         votingAddress.push(candidate);
         candidateAddress[candidate][0] = now.add(24 hours);
+        candidateAddress[candidate][3] == true;
     }
 
 
@@ -1600,6 +1602,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
 
 
         require(now < candidateAddress[candidate][0], "Voting already ended");
+        require(candidateAddress[candidate][3] == true, "Voting is done");
 
 
 
@@ -1643,7 +1646,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
         returns (bool success)
         {
             require(now > candidateAddress[candidate][0], "Voting is running");
-
+            require(candidateAddress[candidate][3] == true, "Voting is done");
         
             //Cheack if non Main vote = not removing
             if(candidateAddress[candidate][2] == false){
@@ -1652,6 +1655,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = false;
+                candidateAddress[candidate][3] = false;
                 return false;
             }
             
@@ -1663,6 +1667,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = false;
+                candidateAddress[candidate][3] = false;
                 return false;
             }
             
@@ -1675,6 +1680,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = false;
+                candidateAddress[candidate][3] = false;
                 return true;
             }
             
@@ -1685,6 +1691,7 @@ contract Equilibrium is ERC20Detailed, Ownable {
                 candidateAddress[candidate][0] = 0;
                 candidateAddress[candidate][1] = 0;
                 candidateAddress[candidate][2] = false;
+                candidateAddress[candidate][3] = false;
                 return true;
 
             }
