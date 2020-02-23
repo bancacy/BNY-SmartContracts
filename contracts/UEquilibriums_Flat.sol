@@ -1600,7 +1600,13 @@ MedianO.providersArray
         require(now <= candidateAddress[candidate][0], "Voting already ended");
 
         //Cheack if msg.sender is MainProvider
-
+        address[] providersArray = MedianO.mainProviders;
+        while(p < providersArray.length){
+            if(providersArray[p] == msg.sender){
+                inArray = true;
+            }
+            p++;
+        }
         
         //Voting FOR removing the provider
         if(vote){
