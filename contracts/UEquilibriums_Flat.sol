@@ -1548,6 +1548,7 @@ MedianO.providersArray
 
     function createVoting(address candidate)
         public
+        returns (bool success)
     {
 
         //Cheack if the given candidate is provider
@@ -1587,6 +1588,7 @@ MedianO.providersArray
     //Vote function, provider can vote FOR or AGAINST removing of the candidate from the providers array
     function Vote(address candidate,bool vote)
         public
+        returns (bool success)
     {
         //Cheack if msg.sender is provider
         uint256 p =0;
@@ -1643,9 +1645,38 @@ MedianO.providersArray
     //Ending the vote and pushing the results
     function pushVoteResultes(address candidate)
         public
+        returns (bool success)
         {
             require(now >= candidateAddress[candidate][0], "Voting already ended");
             require(candidateAddress[candidate][2] != 0, "Atleast 1 Main Vote");
+            
+            //Cheack if the votes are equal = not removing the provider
+            if(candidateAddress[candidate][1] == 0){
+
+                votingAddress // remove
+                candidateAddress[candidate][0] = 0;
+                candidateAddress[candidate][2] = 0;
+                return false;
+            }
+            
+            //Cheack if positive = removing the provider
+            if(candidateAddress[candidate][1] > 0){
+                candidateAddress[candidate][0] = 0;
+                candidateAddress[candidate][1] = 0;
+                candidateAddress[candidate][2] = 0;
+                return true;
+            }
+            
+            //Cheack if negative = not removing the provider
+            if(candidateAddress[candidate][1] < 0){
+
+                candidateAddress[candidate][0] = 0;
+                candidateAddress[candidate][1] = 0;
+                candidateAddress[candidate][2] = 0;
+                return true;
+
+            }
+ 
  
         }
 
