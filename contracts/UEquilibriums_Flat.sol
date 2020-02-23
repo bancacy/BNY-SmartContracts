@@ -1576,6 +1576,23 @@ MedianO.providersArray
         candidateAddress[candidate][0] = now.add(24 hours);
     }
 
+    function Vote(bool vote)
+        public
+    {
+        uint256 p =0;
+        bool inArray = false;
+        bool alradyInVoting = false;
+        address[] providersArray = MedianO.providersArray;
+        while(p < providersArray.length){
+            if(providersArray[p] == msg.sender){
+                inArray = true;
+            }
+            p++;
+        }
+        require(inArray);
+
+    }
+
 
 
 
